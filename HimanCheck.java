@@ -1,22 +1,56 @@
+import java.util.Scanner;
+
 class HimanCheck {
 	public static void main(String[] args) {
-		double height, weight, weightAve, fat;
+		class Riddle {
+    private int hp;          // 体力
+    private String name;     // 名前
 
-		height = 1.68;
-		weight = 50;
+    public Riddle(int hp, String name) {
+        this.hp = hp;
+        this.name = name;
+    }
 
-		weightAve = 22 * Math.pow(height,2) ;
-		fat = (weight - weightAve) / weightAve * 100;
+    public String getName() {
+        return name;
+    }
 
-		System.out.print("あなたの肥満率は");
-		System.out.print(fat);
-		System.out.println("%です。");
-		if (fat >= 25) {
-			System.out.println("あなたは太りすぎです。");
-		} else if (fat <= -15){
-			System.out.println("あなたは痩せすぎです。");
-		} else {
-			System.out.println("あなたは太りすぎではありません。");
+    public void attack(Enemy enemy) {
+        System.out.println(name + "の攻撃！");
+        int damage = 10; // ダメージ量は仮に10とする
+        enemy.takeDamage(damage);
+        System.out.println(enemy.getName() + "に" + damage + "のダメージを与えた！");
+    }
+
+    public void run() {
+        System.out.println(name + "は逃げ出した！");
+        System.exit(0); // プログラムを終了
+    }
+}
+	class Enemy {
+		private int hp;          // 敵の体力
+		private String name;     // 名前
+
+		public Enemy(int hp, String name) {
+			this.hp = hp;
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public int getHp() {
+			return hp;
+		}
+
+		public void takeDamage(int damage) {
+			hp -= damage; // ダメージを受けた分だけHPを減少させる
+			if (hp < 0) {
+				hp = 0;
+			}
 		}
 	}
+	}
 }
+
