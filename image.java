@@ -9,8 +9,8 @@ public class shot{
 			health[player] -= 1; // プレイヤーの体力を1減らす
 			System.out.println("実弾！体力が減少しました。現在の体力: " + health[player]);
 			myTurn--; // 自分のターンを終了
-			if(cmd.equals("twice")){
-				health[player] -= 2; // プレイヤーの体力を1減らす
+			if(cmd.equals("third")){
+				health[player] -= 3; // プレイヤーの体力を1減らす
 				System.out.println("実弾！体力が減少しました。現在の体力: " + health[player]);
 				myTurn--; // 自分のターンを終了
 			}
