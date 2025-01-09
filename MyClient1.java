@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.util.*;
 import java.util.Random;
 
-public class MyClient1 extends JFrame implements MouseListener,MouseMotionListener {
+public class MyClient extends JFrame implements MouseListener,MouseMotionListener {
 	private JButton buttonArray[][]; //ボタン用の配列
 	private JButton passButton;
 	private int myColor, x, y;
@@ -19,7 +19,7 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 	PrintWriter out;//出力用のライター
 	private int pass_count;
 
-	public MyClient1() {
+	public MyClient() {
 		//名前の入力ダイアログを開く
 		String myName = JOptionPane.showInputDialog(null,"名前を入力してください","名前の入力",JOptionPane.QUESTION_MESSAGE);
 		if(myName.equals("")){
@@ -31,30 +31,36 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 		}
 		//ウィンドウを作成する
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じるときに，正しく閉じるように設定する
-		setTitle("MyClient1");//ウィンドウのタイトルを設定する
+		setTitle("MyClient");//ウィンドウのタイトルを設定する
 		setSize(800,600);//ウィンドウのサイズを設定する
 		c = getContentPane();//フレームのペインを取得する
 
 		//アイコンの設定
-		pistol = new ImageIcon("pistol.jpg");
-		mouse = new ImageIcon("Mickey.jpg");
+		whiteIcon = new ImageIcon("White.jpg");
+		blackIcon = new ImageIcon("Black.jpg");
 		boardIcon = new ImageIcon("GreenFrame.jpg");
 
 		c.setLayout(null);//自動レイアウトの設定を行わない
-		//体力
-		int myLife = 3;
-		int yourLife = 3;
-		
-		
+		//ボタンの生成
+		buttonArray = new JButton[8][8];//ボタンの配列を５個作成する[0]から[8]まで使える
+		for(int j=0;j<8;j++){
+			for(int i=0; i<8; i++){
+				buttonArray[j][i] = new JButton(boardIcon);//ボタンにアイコンを設定する
+				c.add(buttonArray[j][i]);//ペインに貼り付ける
+				buttonArray[j][i].setBounds(i*50+10,j*50+10,50,50);//ボタンの大きさと位置を設定する．(x座標，y座標,xの幅,yの幅）
+				buttonArray[j][i].addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
+				buttonArray[j][i].addMouseMotionListener(this);//ボタンをマウスで動かそうとしたときに反応するようにする
+				buttonArray[j][i].setActionCommand(Integer.toString((8*j+i)));//ボタンに配列の情報を付加する（ネットワークを介してオブジェクトを識別するため）
+			}
+		}
+		//初期のボタン配置//
+		buttonArray[3][3].setIcon(blackIcon);
+		buttonArray[4][4].setIcon(blackIcon);
+		buttonArray[3][4].setIcon(whiteIcon);
+		buttonArray[4][3].setIcon(whiteIcon);
 		//パスボタンの作成
-		shotButton = new JButton("相手に打つ");
-		shotButton.setBounds(525,225,150,80);
-		shotButton.addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
-		shotButton.setActionCommand("Shot");
-		c.add(shotButton);
-		
-		passButton = new JButton("自分に打つ");
-		passButton.setBounds(525,225,180,120);
+		passButton = new JButton("パス");
+		passButton.setBounds(525,225,150,80);
 		passButton.addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
 		passButton.setActionCommand("PASS");
 		c.add(passButton);
@@ -74,13 +80,6 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 		
 		MesgRecvThread mrt = new MesgRecvThread(socket, myName);//受信用のスレッドを作成する
 		mrt.start();//スレッドを動かす（Runが動く）
-		//確率操作
-		public void Bullet(){
-			Random rand = new Random();
-			all_bullet = 6;
-			int Gun = rand.nextInt(5) + 1;
-			non_bullet = all_bullet - Gun;
-		}
 	}
 		
 	//メッセージ受信のためのスレッド
@@ -115,25 +114,49 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 						System.out.println(inputLine);//デバッグ（動作確認用）にコンソールに出力する
 						String[] inputTokens = inputLine.split(" ");	//入力データを解析するために、スペースで切り分ける
 						String cmd = inputTokens[0];//コマンドの取り出し．１つ目の要素を取り出す
+						if(cmd.equals("MOVE")){//cmdの文字と"MOVE"が同じか調べる．同じ時にtrueとなる
+							//MOVEの時の処理(コマの移動の処理)
+							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
+							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
+							int x = Integer.parseInt(inputTokens[2]);//数値に変換する
+							int y = Integer.parseInt(inputTokens[3]);//数値に変換する
+							int j = theBnum / 8;
+							int i = theBnum % 8;
+							buttonArray[j][i].setLocation(x,y);//指定のボタンを位置をx,yに設定する
 						}
-
-						if(cmd.equals("Shot")){//cmdの文字と"Shot"が同じか調べる．同じ時にtrueとなる
-							//Shotの時の処理(コマの移動の処理)
+						if(cmd.equals("PLACE")){//cmdの文字と"PLACE"が同じか調べる．同じ時にtrueとなる
+							//PLACEの時の処理(コマの移動の処理)
 							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
 							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
 							myTurn = 1 - myTurn;
-							if ( == Gun){
-								
+							int theColor = Integer.parseInt(inputTokens[2]);//数値に変換する
+							int j = theBnum / 8;
+							int i = theBnum % 8;
+							if (theColor == myColor){
+								buttonArray[j][i].setIcon(myIcon);
 							}
 							else{
 								buttonArray[j][i].setIcon(yourIcon);
 							}
 							pass_count = 0;
 						}
+						if(cmd.equals("FLIP")){//cmdの文字と"FLIP"が同じか調べる．同じ時にtrueとなる
+							//FLIPの時の処理(コマの移動の処理)
+							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
+							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
+							int theColor = Integer.parseInt(inputTokens[2]);//数値に変換する
+							int j = theBnum / 8;
+							int i = theBnum % 8;
+							if (theColor == myColor){//置いたボタンの処理
+								buttonArray[j][i].setIcon(myIcon);
+							}
+							else{
+								buttonArray[j][i].setIcon(yourIcon);
+							}
 						}
 						if(cmd.equals("PASS")){//パスボタンが押された場合の処理
-							pass_count += 1;//パスカウントを1増やす
-							
+							pass_count += ;//パスカウントを1増やす
+							System.out.println(pass_count);
 							if (pass_count >1){
 								Count_board();//パスカウントが2以上の場合コマを数える。
 								break;
@@ -158,7 +181,7 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 	}
 
 	public static void main(String[] args) {
-		MyClient1 net = new MyClient1();
+		MyClient net = new MyClient();
 		net.setVisible(true);
 	}
   	
@@ -167,7 +190,7 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 			System.out.println("クリック");
 			JButton theButton = (JButton)e.getComponent();//クリックしたオブジェクトを得る．型が違うのでキャストする
 			String theArrayIndex = theButton.getActionCommand();//ボタンの配列の番号を取り出す
-			
+			Icon theIcon = theButton.getIcon();//theIconには，現在のボタンに設定されたアイコンが入る
 			if (theArrayIndex.equals("PASS")){
 				String msg = "PASS";
 
@@ -184,7 +207,7 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 
 					repaint();//画面のオブジェクトを描画し直す
 					//送信情報を作成する（受信時には，この送った順番にデータを取り出す．スペースがデータの区切りとなる）
-					String msg = "Shot"+" "+theArrayIndex+" "+myColor;
+					String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
 
 					//サーバに情報を送る
 					out.println(msg);//送信データをバッファに書き出す
@@ -341,4 +364,5 @@ public class MyClient1 extends JFrame implements MouseListener,MouseMotionListen
 			System.out.println("You lose")
 		}
 	}
-}
+		
+	}

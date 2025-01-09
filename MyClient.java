@@ -42,23 +42,30 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		watch = new ImageIcon("Black.jpg");
 
 		c.setLayout(null);//自動レイアウトの設定を行わない
-		//ボタンの生成
-		buttonArray = new JButton[8][8];//ボタンの配列を５個作成する[0]から[8]まで使える
-		for(int j=0;j<8;j++){
-			for(int i=0; i<8; i++){
-				buttonArray[j][i] = new JButton(boardIcon);//ボタンにアイコンを設定する
-				c.add(buttonArray[j][i]);//ペインに貼り付ける
-				buttonArray[j][i].setBounds(i*50+10,j*50+10,50,50);//ボタンの大きさと位置を設定する．(x座標，y座標,xの幅,yの幅）
-				buttonArray[j][i].addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
-				buttonArray[j][i].addMouseMotionListener(this);//ボタンをマウスで動かそうとしたときに反応するようにする
-				buttonArray[j][i].setActionCommand(Integer.toString((8*j+i)));//ボタンに配列の情報を付加する（ネットワークを介してオブジェクトを識別するため）
+		public static void main(String[] args) {
+			Random rand = new Random();
+			int all_bullet = 6;
+			int Gun_bullet = rand.nextInt(all_bullet) + 1;
+			List<String>chamber = new ArrayList<String>();
+		
+		for(int i = 0; i < Gun_bullet; i++){
+			chamber.add("1");
+		}
+		for(int i = 0; i < all_bullet - Gun_bullet; i++){
+			chamber.add("0");
+		}
+		Collections.shuffle(chamber);
+		int cnt = 0;
+		for(String str: chamber){
+			if("1".equals(str)){
+				cnt++;			
 			}
 		}
-		//初期のボタン配置//
-		buttonArray[3][3].setIcon(blackIcon);
-		buttonArray[4][4].setIcon(blackIcon);
-		buttonArray[3][4].setIcon(whiteIcon);
-		buttonArray[4][3].setIcon(whiteIcon);
+		System.out.println("実弾の個数: " + cnt);
+		
+		}
+		
+		
 		//パスボタンの作成
 		passButton = new JButton("パス");
 		passButton.setBounds(525,225,150,80);
@@ -75,7 +82,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 			socket = new Socket(serverIP, 10000);
 		} catch (UnknownHostException e) {
 			System.err.println("ホストの IP アドレスが判定できません: " + e);
-		} catch (IOException e) {tg
+		} catch (IOException e) {
 			 System.err.println("エラーが発生しました: " + e);
 		}
 		
@@ -95,29 +102,6 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		}
 		
 		//通信状況を監視し，受信データによって動作する
-		public class shot{		
-		
-			if(cmd.equals("Shot")){//cmdの文字と"Shot"が同じか調べる．同じ時にtrueとなる
-									//Shotの時の処理
-				String theBName = inputTokens[1];//ボタンの名前（番号）の取得
-				int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
-				int consume = all_bullet.remove(0); // リストから最初の弾を取り出す
-				if (consume == 1){
-					health[player] -= 1; // プレイヤーの体力を1減らす
-					System.out.println("実弾！体力が減少しました。現在の体力: " + health[player]);
-					myTurn--; // 自分のターンを終了
-					if(cmd.equals("twice")){
-						health[player] -= 2; // プレイヤーの体力を1減らす
-						System.out.println("実弾！体力が減少しました。現在の体力: " + health[player]);
-						myTurn--; // 自分のターンを終了
-					}
-				}
-				else{
-					health[player] -= 0; // プレイヤーの体力を1減らす
-					myTurn--; // 自分のターンを終了
-				}
-			}
-		}
 		public void run() {
 			try{
 				InputStreamReader sisr = new InputStreamReader(socket.getInputStream());
@@ -126,16 +110,10 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 				out.println(myName);//接続の最初に名前を送る
 				String myNumberStr = br.readLine();
 				int myNumberInt = Integer.parseInt(myNumberStr);
-				if(myNumberInt % 2 == 0){//ターンとコマの色を決める
+				if(myNumberInt % 2 == 0){//ターンとを決める
 					myTurn = 0;
-					myIcon = blackIcon;
-			        yourIcon = whiteIcon;
-					myColor = 0;
 				}
 				else{
-					myIcon=whiteIcon;
-					yourIcon=blackIcon;
-					myColor = 1;
 					myTurn = 1;
 				}
 				while(true) {
@@ -144,45 +122,51 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 						System.out.println(inputLine);//デバッグ（動作確認用）にコンソールに出力する
 						String[] inputTokens = inputLine.split(" ");	//入力データを解析するために、スペースで切り分ける
 						String cmd = inputTokens[0];//コマンドの取り出し．１つ目の要素を取り出す
-						if(cmd.equals("MOVE")){//cmdの文字と"MOVE"が同じか調べる．同じ時にtrueとなる
-							//MOVEの時の処理(コマの移動の処理)
-							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
-							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
-							int x = Integer.parseInt(inputTokens[2]);//数値に変換する
-							int y = Integer.parseInt(inputTokens[3]);//数値に変換する
-							int j = theBnum / 8;
-							int i = theBnum % 8;
-							buttonArray[j][i].setLocation(x,y);//指定のボタンを位置をx,yに設定する
+						if (cmd.equals("watch")) {
+							if (watchCount > 0) {
+								int nextGun = chamber.get(0); // 次の弾を見る
+								if (nextGun == 1) {
+									System.out.println("次の弾は実弾です！");
+								} else {
+									System.out.println("次の弾は空弾です！");
+								}
+								watchCount--; // Watchの使用回数を減らす
+								System.out.println("残りのWatch回数: " + watchCount);
+								if(watchCount == 0){
+								watchButton.setEnabled(false);
+								}
+							}
+						}					
+						if (cmd.equals("PASS")) { // cmdが"PASS"の場合の処理
+							// 弾丸を1発取り出す
+							int bullet = chamber.remove(0); // リストから最初の弾を取り出す
+							if (bullet == 1) {
+								// 実弾だった場合
+								playerHealth -= 1; // プレイヤーの体力を1減らす
+								System.out.println("実弾！体力が減少しました。現在の体力: " + playerHealth);
+								myTurn = 1 - myTurn;; // 自分のターンを終了
+							} else {
+								// 空弾だった場合
+								System.out.println("セーフ！もう一度引いてください。");
+								// myTurnを維持して再度試行
+								myTurn = 0 - myTurn;
+							}
 						}
-						if(cmd.equals("PLACE")){//cmdの文字と"PLACE"が同じか調べる．同じ時にtrueとなる
-							//PLACEの時の処理(コマの移動の処理)
-							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
-							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
-							myTurn = 1 - myTurn;
-							int theColor = Integer.parseInt(inputTokens[2]);//数値に変換する
-							int j = theBnum / 8;
-							int i = theBnum % 8;
-							if (theColor == myColor){
-								buttonArray[j][i].setIcon(myIcon);
-							}
-							else{
-								buttonArray[j][i].setIcon(yourIcon);
-							}
-							pass_count = 0;
-						}
-						if(cmd.equals("FLIP")){//cmdの文字と"FLIP"が同じか調べる．同じ時にtrueとなる
-							//FLIPの時の処理(コマの移動の処理)
-							String theBName = inputTokens[1];//ボタンの名前（番号）の取得
-							int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
-							int theColor = Integer.parseInt(inputTokens[2]);//数値に変換する
-							int j = theBnum / 8;
-							int i = theBnum % 8;
-							if (theColor == myColor){//置いたボタンの処理
-								buttonArray[j][i].setIcon(myIcon);
-							}
-							else{
-								buttonArray[j][i].setIcon(yourIcon);
-							}
+						if (cmd.equals("Shot")) { // cmdが"shot"の場合の処理
+								// 弾丸を1発取り出す
+								int bullet = chamber.remove(0); // リストから最初の弾を取り出す
+								if (bullet == 1) {
+									// 実弾だった場合
+									opponentHealth -= 1; // プレイヤーの体力を1減らす
+									System.out.println("実弾！相手の体力が減少しました。相手の体力: " + opponentHealth);
+									myTurn = 1 - myTurn; // 自分のターンを終了
+								} else {
+									// 空弾だった場合
+									opponentHealth -= 0;
+									System.out.println("残念！ 相手の体力:"　+ opponentHealth);
+									// 自分のターンを終了
+									myTurn = 1 - myTurn;
+								}
 						}
 						if(cmd.equals("PASS")){//パスボタンが押された場合の処理
 							pass_count += 1;//パスカウントを1増やす
@@ -228,25 +212,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 				out.println(msg);//送信データをバッファに書き出す
 				out.flush();//送信データをフラッシュ（ネットワーク上にはき出す）する
 			}
-			if (theIcon == boardIcon){
-				int temp = Integer.parseInt(theArrayIndex); //int型に変換
-				int y = temp / 8;
-				int x = temp % 8;
-				if(judgeButton(x, y)){//裏返せるものがあるか確認
-					System.out.println(theIcon);//デバッグ（確認用）に，クリックしたアイコンの名前を出力する
-
-					repaint();//画面のオブジェクトを描画し直す
-					//送信情報を作成する（受信時には，この送った順番にデータを取り出す．スペースがデータの区切りとなる）
-					String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
-
-					//サーバに情報を送る
-					out.println(msg);//送信データをバッファに書き出す
-					out.flush();//送信データをフラッシュ（ネットワーク上にはき出す）する
-				}
-				else{
-					System.out.println("そこには配置できません");
-				}
-			}
+			
 		}
 
 	}
@@ -299,103 +265,13 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		System.out.println(theMLocX+","+theMLocY);//コンソールに出力する
 		*/
 	}
-	//返せるコマがあるかを確認する関数
-	public boolean judgeButton(int x, int y){
-		boolean flag = false;
-		//すべての方向におけるコマがある確認
-		for(int j=-1;j<2;j++){
-			for(int i=-1; i<2; i++){
-				if(y+j<0 || 7<y+j || x+i<0 || 7<x+i){//２次元配列内を参照している場合は続ける
-					continue;
-				}
-				if(flipButtons(x,y,i,j) >= 1){//ある場合はflag=trueにする
-					flag = true;
-				}
-			}
-		}
-		return flag;
-	}
-	//何枚返せる枚数があるかを見る関数
-	public int flipButtons(int x, int y, int i, int j){
-		int flipNum = 0;//何枚返せるかを保存
-		if (i==0 && j==0){//自分を参照している場合は中断
-			return 0;
-		}
-		for(int dy=j, dx=i; ; dy+=j, dx+=i){//iとjの方向への探索を進める。
-			int a=dy+y;
-			int b=dx+x;
-			System.out.println("a=" + a + " b=" + b);
-			if(a<0 || 7<a || b<0 || 7<b){//２次元配列内を参照しない場合は処理を中断
-				return 0;
-			}
-			Icon theIcon = buttonArray[a][b].getIcon();//iとj方向のIconを確認
-			if(theIcon == boardIcon){//ボードアイコンの場合は処理を中断
-				return 0;
-			}
-			if(theIcon == myIcon){
-				if(flipNum >= 1){//1枚でも返せる枚数があれば情報を送る
-					for(int ddy=j, ddx=i, k=0; k<flipNum; k++, ddy+=j, ddx+=i){
-						//ボタンの位置情報を作る
-						int msgy = y + ddy;
-						int msgx = x + ddx;
-						int theArrayIndex = msgy*8 + msgx;
-						//サーバに情報を送る
-						String msg = "FLIP"+" "+theArrayIndex+" "+myColor;
-						out.println(msg);
-						out.flush();
-					}
-				}
-				return flipNum;
-			}
-			if(theIcon == yourIcon){//youIconならflipnumを増加
-				flipNum++;
-			}
-		}
-	}
-	//ボードアイコンがあるかを確認する関数
-	public boolean kakuninn(){//ボードアイコンがあるかを確認する
-		boolean flag = true;
-		Icon theIcon = null;
-		//すべてのマス目を確認していく
-		for (int i=0; i<8; i++){
-			for (int j=0; j<8; j++){
-				theIcon = buttonArray[i][j].getIcon();//マス目を確認
-				if (theIcon == boardIcon){//ボードアイコンがある場合flagをfalseに設定
-					flag = false;
-					break;
-				}
-			}
-		}
-		return flag;
-	}
-	//最後にコマを数える関数
-	public void Count_board(){
-		//それぞれを初期化
-		int white = 0;
-		int black = 0;
-		Icon theIcon = null;
-		//すべてのマス目を探索
-		for (int i=0; i<8; i++){
-			for (int j=0; j<8; j++){
-				theIcon = buttonArray[i][j].getIcon();
-				//それぞれの場合でカウントを増やす
-				if (theIcon == whiteIcon){
-					white++;
-				}
-				else if (theIcon == blackIcon){
-					black++;
-				}
-			}
-		}
+	
 		//勝敗の条件理由を行う
-		if (white < black){
-			System.out.println("黒のコマの勝ちです");
-		}
-		else if (white > black){
-			System.out.println("白のコマの勝ちです");
+		if ( playerHealth < 0){
+			System.out.println("Playerの負けです");
 		}
 		else{
-			System.out.println("引き分けです");
+			System.out.println("Playerの勝ちです");
 		}
 	}
 }
