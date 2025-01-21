@@ -1,31 +1,15 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+private void ratio() {
+        chamber = new ArrayList<>();
+        Random rand = new Random();
 
-public class ratio{
-		
-		//ämó¶ëÄçÏ
-	public static void main(String[] args) {
-		Random rand = new Random();
-		int all_bullet = 6;
-		int Gun_bullet = rand.nextInt(all_bullet) + 1;
-		List<String>chamber = new ArrayList<String>();
-		
-	for(int i = 0; i < Gun_bullet; i++){
-			chamber.add("1");
-		}
-		for(int i = 0; i < all_bullet - Gun_bullet; i++){
-			chamber.add("0");
-		}
-		Collections.shuffle(chamber);
-		int cnt = 0;
-		for(String str: chamber){
-			if("1".equals(str)){
-				cnt++;			
-			}
-		}
-		System.out.println("é¿íeÇÃå¬êî: " + cnt);
-}
+        // é¿íeÇç≈í·Ç≈Ç‡1Ç¬îzíu
+        chamber.add(1); // é¿íe1Ç¬
 
-		
+        // écÇË5Ç¬ÇÉâÉìÉ_ÉÄÇ…é¿íeÇ‹ÇΩÇÕãÛíeÇ…ê›íË
+        int remainingBulletCount = 5;
+        for (int i = 0; i < remainingBulletCount; i++) {
+            chamber.add(rand.nextInt(2)); // 0Ç‹ÇΩÇÕ1ÅiãÛíeÇ‹ÇΩÇÕé¿íeÅj
+        }
+
+        Collections.shuffle(chamber); // íeÇÃèáî‘ÇÉâÉìÉ_ÉÄÇ…ï¿Ç◊ë÷Ç¶
+    }
