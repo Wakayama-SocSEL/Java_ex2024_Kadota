@@ -24,27 +24,28 @@ class ClientProcThread extends Thread {
 
 	public void run() {
 		try {
-			myOut.println(number);//初回だけ呼ばれる
-			
-			myName = myIn.readLine();//初めて接続したときの一行目は名前
+			myOut.println(number); // 初回だけ呼ばれる
 
-			while (true) {//無限ループで，ソケットへの入力を監視する
+			myName = myIn.readLine(); // 初めて接続したときの一行目は名前
+
+			while (true) { // 無限ループで，ソケットへの入力を監視する
 				String str = myIn.readLine();
-				System.out.println("Received from client No."+number+"("+myName+"), Messages: "+str);
-				if (str != null) {//このソケット（バッファ）に入力があるかをチェック
+				System.out.println("Received from client No." + number + " (" + myName + "), Messages: " + str);
+				if (str != null) { // このソケット（バッファ）に入力があるかをチェック
 					if (str.toUpperCase().equals("BYE")) {
 						myOut.println("Good bye!");
 						break;
 					}
-					MyServer2.SendAll(str, myName);//サーバに来たメッセージは接続しているクライアント全員に配る
+					
 				}
 			}
 		} catch (Exception e) {
-			//ここにプログラムが到達するときは，接続が切れたとき
-			System.out.println("Disconnect from client No."+number+"("+myName+")");
-			MyServer2.SetFlag(number, false);//接続が切れたのでフラグを下げる
+			// 接続が切れたとき
+			System.out.println("Disconnect from client No." + number + " (" + myName + ")");
+			MyServer2.SetFlag(number, false); // 接続が切れたのでフラグを下げる
 		}
 	}
+
 }
 
 class MyServer2{
@@ -91,6 +92,7 @@ class MyServer2{
 		try {
 			System.out.println("The server has launched!");
 			ServerSocket server = new ServerSocket(10000);//10000番ポートを利用する
+			server.setReuseAddress(true); // ソケットの再利用を許可
 			while (true) {
 				incoming[n] = server.accept();
 				flag[n] = true;
