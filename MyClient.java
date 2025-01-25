@@ -73,7 +73,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		setContentPane(new BackgroundPanel("/tabletop.png"));
 		setLayout(null);
 
-			// Player and opponent icons
+		// Player and opponent icons
         JLabel playerIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
         playerIcon.setBounds(50, 50, 100, 100);
         add(playerIcon);
