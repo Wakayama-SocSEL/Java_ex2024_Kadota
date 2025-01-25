@@ -9,11 +9,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import javax.sound.sampled.*;
-import java.io.File;//‰¹ŠyÄ¶‚É•K—v
-import javax.sound.sampled.AudioFormat;//‰¹ŠyÄ¶‚É•K—v
-import javax.sound.sampled.AudioSystem;//‰¹ŠyÄ¶‚É•K—v
-import javax.sound.sampled.Clip;//‰¹ŠyÄ¶‚É•K—v
-import javax.sound.sampled.DataLine;//‰¹ŠyÄ¶‚É•K—v
+import java.io.File;//éŸ³æ¥½å†ç”Ÿæ™‚ã«å¿…è¦
+import javax.sound.sampled.AudioFormat;//éŸ³æ¥½å†ç”Ÿæ™‚ã«å¿…è¦
+import javax.sound.sampled.AudioSystem;//éŸ³æ¥½å†ç”Ÿæ™‚ã«å¿…è¦
+import javax.sound.sampled.Clip;//éŸ³æ¥½å†ç”Ÿæ™‚ã«å¿…è¦
+import javax.sound.sampled.DataLine;//éŸ³æ¥½å†ç”Ÿæ™‚ã«å¿…è¦
 
 class BackgroundPanel extends JPanel {
     private Image backgroundImage;
@@ -22,7 +22,7 @@ class BackgroundPanel extends JPanel {
         try {
             backgroundImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
         } catch (Exception e) {
-            System.err.println("”wŒi‰æ‘œ‚Ì“Ç‚İ‚İ‚É¸”s: " + e.getMessage());
+            System.err.println("èƒŒæ™¯ç”»åƒã®èª­ã¿è¾¼ã¿ã«å¤±æ•—: " + e.getMessage());
         }
     }
 <<<<<<< HEAD
@@ -42,31 +42,29 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
     private int playerHealth = 3;
     private int opponentHealth = 3;
     private ArrayList<Integer> chamber;
-	private ArrayList<Integer> tmp;
-    private int myTurn; // 0: æU, 1: ŒãU
+ã€€ã€€private ArrayList<Integer> tmp;
+    private int myTurn; // 0: å…ˆæ”», 1: å¾Œæ”»
     private int watchCount = 2;
-    private int powerMultiplier = 1; // ‰Î—Í‚Ì”{—¦
-	private int turnCount = 0; // ƒ^[ƒ“”‚ğ‰Šú‰»
+    private int powerMultiplier = 1; // ç«åŠ›ã®å€ç‡
+ã€€ã€€private int turnCount = 0; // ã‚¿ãƒ¼ãƒ³æ•°ã‚’åˆæœŸåŒ–
     private PrintWriter out;
     private String serverIP;
     private String myName;
     private Socket socket;	
-    private String selectedCharacter; // ‘I‘ğ‚³‚ê‚½ƒLƒƒƒ‰ƒNƒ^[‚ğ•Û‚·‚é
-	private JLabel playerIcon;   // ƒvƒŒƒCƒ„[‚ÌƒAƒCƒRƒ“‚ğ•\¦‚·‚é
-	private JLabel opponentIcon; // ‘Šè‚ÌƒAƒCƒRƒ“‚ğ•\¦‚·‚é
+  
 
 
-	 // ’e‚Ìó‘Ô‚ğ•Û‚·‚é•Ï”
-    private boolean isLiveRound = true;  // À’e‚©‹ó’e‚©itrue: À’eAfalse: ‹ó’ej
+	 // å¼¾ã®çŠ¶æ…‹ã‚’ä¿æŒã™ã‚‹å¤‰æ•°
+    private boolean isLiveRound = true;  // å®Ÿå¼¾ã‹ç©ºå¼¾ã‹ï¼ˆtrue: å®Ÿå¼¾ã€false: ç©ºå¼¾ï¼‰
 
     public MyClient() {
-		// –¼‘O‚Ì“ü—Íƒ_ƒCƒAƒƒO‚ğŠJ‚­
-		myName = JOptionPane.showInputDialog(null, "–¼‘O‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢", "–¼‘O‚Ì“ü—Í", JOptionPane.QUESTION_MESSAGE);
+		// åå‰ã®å…¥åŠ›ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’é–‹ã
+		myName = JOptionPane.showInputDialog(null, "åå‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„", "åå‰ã®å…¥åŠ›", JOptionPane.QUESTION_MESSAGE);
 		if (myName == null || myName.equals("")) {
 			myName = "No name";
 		}
 
-		serverIP = JOptionPane.showInputDialog(null, "ƒT[ƒo[‚Ì–¼‘O‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢", "ƒT[ƒo[‚Ì“ü—Í", JOptionPane.QUESTION_MESSAGE);
+		serverIP = JOptionPane.showInputDialog(null, "ã‚µãƒ¼ãƒãƒ¼ã®åå‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„", "ã‚µãƒ¼ãƒãƒ¼ã®å…¥åŠ›", JOptionPane.QUESTION_MESSAGE);
 		if (serverIP == null || serverIP.equals("")) {
 			serverIP = "localhost";
 		}
@@ -75,7 +73,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		setContentPane(new BackgroundPanel("/tabletop.png"));
 		setLayout(null);
 
-		// Player and opponent icons
+			// Player and opponent icons
         JLabel playerIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
         playerIcon.setBounds(50, 50, 100, 100);
         add(playerIcon);
@@ -88,7 +86,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		
 
         // Start button
-        startButton = new JButton("ƒQ[ƒ€ŠJn");
+        startButton = new JButton("ã‚²ãƒ¼ãƒ é–‹å§‹");
         startButton.setBounds(300, 250, 200, 50);
         startButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -100,7 +98,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
         // Bullet count label (for displaying bullet counts)
         bulletCountLabel = new JLabel();
         bulletCountLabel.setBounds(250, 200, 300, 30);
-        bulletCountLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
+        bulletCountLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // æ—¥æœ¬èªå¯¾å¿œãƒ•ã‚©ãƒ³ãƒˆè¨­å®š
         bulletCountLabel.setForeground(Color.YELLOW);
         add(bulletCountLabel);
 
@@ -116,62 +114,62 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
         add(opponentHealthLabel);
 
         // Message label
-        messageLabel = new JLabel("ƒQ[ƒ€ŠJn", SwingConstants.CENTER);
+        messageLabel = new JLabel("ã‚²ãƒ¼ãƒ é–‹å§‹", SwingConstants.CENTER);
         messageLabel.setBounds(200, 500, 400, 30);
-        messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
+        messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // æ—¥æœ¬èªå¯¾å¿œãƒ•ã‚©ãƒ³ãƒˆè¨­å®š
         messageLabel.setForeground(Color.YELLOW);
         add(messageLabel);
 
         // Buttons placed below the start button
-       //ƒ{ƒ^ƒ“ì¬
-		watchButton = createButton("eye.jpeg", 50, 350, "Ÿ‚Ì’e‚ÌŠm”F");
+       //ãƒœã‚¿ãƒ³ä½œæˆ
+		watchButton = createButton("eye.jpeg", 50, 350, "æ¬¡ã®å¼¾ã®ç¢ºèª");
 		watchButton.setEnabled(false);
 		watchButton.addActionListener(e -> {
-			watchaction(); // Ÿ‚Ì’e‚ÌŠm”Fˆ—
+			watchaction(); // æ¬¡ã®å¼¾ã®ç¢ºèªå‡¦ç†
 			watchButton.setEnabled(false);
-			doublePowerButton.setEnabled(false); // ƒ_ƒuƒ‹ƒ{ƒ^ƒ“‚ğ–³Œø‰»
+			doublePowerButton.setEnabled(false); // ãƒ€ãƒ–ãƒ«ãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹åŒ–
 		});
 		add(watchButton);
 
 
-        myselfPistolButton = createButton("myself_pistol.png", 250, 350, "©•ª‚É‘Å‚Â");
+        myselfPistolButton = createButton("myself_pistol.png", 250, 350, "è‡ªåˆ†ã«æ‰“ã¤");
 		myselfPistolButton.setEnabled(false);
         add(myselfPistolButton);
 
-        shotButton = createButton("pistol.jpg", 450, 350, "‘Šè‚É‘Å‚Â");
+        shotButton = createButton("pistol.jpg", 450, 350, "ç›¸æ‰‹ã«æ‰“ã¤");
 		shotButton.setEnabled(false);
         add(shotButton);
 
-        doublePowerButton = createButton("double_power.png", 650, 350, "‰Î—Í”{‘");
+        doublePowerButton = createButton("double_power.png", 650, 350, "ç«åŠ›å€å¢—");
 		doublePowerButton.setEnabled(false);
         add(doublePowerButton);
 		
 		
 
-		// doublePowerButton ‚ÌƒAƒNƒVƒ‡ƒ“ƒŠƒXƒi[
+		// doublePowerButton ã®ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãƒªã‚¹ãƒŠãƒ¼
 		doublePowerButton.addActionListener(e -> {
-			doublePowerButton.setEnabled(false); // ©•ª©g‚ğ–³Œø‰»
-			watchButton.setEnabled(false); // ƒEƒHƒbƒ`ƒ{ƒ^ƒ“‚ğ–³Œø‰»
-			powerUp(); // ‰Î—Í”{‘‚Ìˆ—
+			doublePowerButton.setEnabled(false); // è‡ªåˆ†è‡ªèº«ã‚’ç„¡åŠ¹åŒ–
+			watchButton.setEnabled(false); // ã‚¦ã‚©ãƒƒãƒãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹åŒ–
+			powerUp(); // ç«åŠ›å€å¢—ã®å‡¦ç†
 		});
 		
 		
-		replayButton = new JButton("ÄƒvƒŒƒC");
+		replayButton = new JButton("å†ãƒ—ãƒ¬ã‚¤");
 		replayButton.setBounds(300, 450, 100, 50);
-		replayButton.setVisible(false); // ‰Šúó‘Ô‚Å‚Í”ñ•\¦
+		replayButton.setVisible(false); // åˆæœŸçŠ¶æ…‹ã§ã¯éè¡¨ç¤º
 		replayButton.addActionListener(e -> resetGame());
 		add(replayButton);
 
-		exitButton = new JButton("I—¹");
+		exitButton = new JButton("çµ‚äº†");
 		exitButton.setBounds(450, 450, 100, 50);
-		exitButton.setVisible(false); // ‰Šúó‘Ô‚Å‚Í”ñ•\¦
-		exitButton.addActionListener(e -> System.exit(0)); // ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹
+		exitButton.setVisible(false); // åˆæœŸçŠ¶æ…‹ã§ã¯éè¡¨ç¤º
+		exitButton.addActionListener(e -> System.exit(0)); // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚’çµ‚äº†
 		add(exitButton);
 
-        // ƒEƒBƒ“ƒhƒE‚ğì¬‚·‚é
+        // ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ä½œæˆã™ã‚‹
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
-        setTitle("ƒƒ‹ƒwƒ“ƒƒVƒAƒ“ƒ‹[ƒŒƒbƒg");
+        setTitle("ãƒ¡ãƒ«ãƒ˜ãƒ³ãƒ­ã‚·ã‚¢ãƒ³ãƒ«ãƒ¼ãƒ¬ãƒƒãƒˆ");
         setVisible(true);
 
         Socket socket = null;
@@ -179,41 +177,41 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 			socket = new Socket(serverIP, 10000);
 			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this, "ƒT[ƒo[‚Ö‚ÌÚ‘±‚É¸”s‚µ‚Ü‚µ‚½: " + e.getMessage());
+			JOptionPane.showMessageDialog(this, "ã‚µãƒ¼ãƒãƒ¼ã¸ã®æ¥ç¶šã«å¤±æ•—ã—ã¾ã—ãŸ: " + e.getMessage());
 			System.exit(1);
 		}
 		
 		 // Initialize chamber
         ratio();
-        MesgRecvThread mrt = new MesgRecvThread(socket, myName); //óM—p‚ÌƒXƒŒƒbƒh‚ğì¬‚·‚é
-        mrt.start(); //ƒXƒŒƒbƒh‚ğ“®‚©‚·iRun‚ª“®‚­j
+        MesgRecvThread mrt = new MesgRecvThread(socket, myName); //å—ä¿¡ç”¨ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ä½œæˆã™ã‚‹
+        mrt.start(); //ã‚¹ãƒ¬ãƒƒãƒ‰ã‚’å‹•ã‹ã™ï¼ˆRunãŒå‹•ãï¼‰
     }
 	
-	// ƒRƒ“ƒXƒgƒ‰ƒNƒ^ŠO‚Éƒƒ\ƒbƒh‚ğ’Ç‰Á
+	// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿å¤–ã«ãƒ¡ã‚½ãƒƒãƒ‰ã‚’è¿½åŠ 
 		private void shootMyself() {
-			// ©•ª‚ğŒ‚‚Âˆ—‚ğƒVƒ~ƒ…ƒŒ[ƒgitrue‚ğˆø”‚Æ‚µ‚ÄhandleShotƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·j
+			// è‡ªåˆ†ã‚’æ’ƒã¤å‡¦ç†ã‚’ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆï¼ˆtrueã‚’å¼•æ•°ã¨ã—ã¦handleShotãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ï¼‰
 			handleShot();
 		}
 
 		private void shootOpponent() {
-			// ‘Šè‚ğŒ‚‚Âˆ—‚ğƒVƒ~ƒ…ƒŒ[ƒgifalse‚ğˆø”‚Æ‚µ‚ÄhandleShotƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·j
+			// ç›¸æ‰‹ã‚’æ’ƒã¤å‡¦ç†ã‚’ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆï¼ˆfalseã‚’å¼•æ•°ã¨ã—ã¦handleShotãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™ï¼‰
 			powerShot();
 		}
 
 		private void powerUp() {
-			// ƒ_ƒ[ƒW‚ğ2”{‚É‚·‚éˆ—‚ğŒÄ‚Ño‚·
+			// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’2å€ã«ã™ã‚‹å‡¦ç†ã‚’å‘¼ã³å‡ºã™
 			doublepower();
 		}
 		
 		private void playSound(String soundFileName) {
 			
 			try {
-				// ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ğw’è‚µ‚ÄAudioInputStream‚ğæ“¾
+				// ãƒ•ã‚¡ã‚¤ãƒ«ã®ãƒ‘ã‚¹ã‚’æŒ‡å®šã—ã¦AudioInputStreamã‚’å–å¾—
 				File soundFile = new File(getClass().getResource("/" + soundFileName).toURI());
 				AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
 				Clip clip = AudioSystem.getClip();
 				clip.open(audioStream);
-				clip.start(); // ‰¹‚ğÄ¶
+				clip.start(); // éŸ³ã‚’å†ç”Ÿ
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -221,29 +219,29 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		
 		private JButton createButton(String iconPath, int x, int y, String labelText) {
 			JButton button = new JButton(new ImageIcon(getClass().getResource(iconPath)));
-			button.setBounds(x, y, 150, 80); // ƒ{ƒ^ƒ“‚ÌƒTƒCƒY‚ğ’²®
+			button.setBounds(x, y, 150, 80); // ãƒœã‚¿ãƒ³ã®ã‚µã‚¤ã‚ºã‚’èª¿æ•´
 			button.setFocusPainted(false);
 			button.setBackground(new Color(60, 63, 65));
 			button.setOpaque(false);
 			button.addMouseListener(this);
 			button.setActionCommand(labelText);
 
-			// ƒ{ƒ^ƒ“‚Ì‰º‚É•¶š‚ğ’Ç‰Á
+			// ãƒœã‚¿ãƒ³ã®ä¸‹ã«æ–‡å­—ã‚’è¿½åŠ 
 			JLabel label = new JLabel(labelText, SwingConstants.CENTER);
 			label.setBounds(x, y + 80, 150, 30);
 			label.setForeground(Color.WHITE);
-			label.setFont(new Font("MS Gothic", Font.BOLD, 12)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒg
+			label.setFont(new Font("MS Gothic", Font.BOLD, 12)); // æ—¥æœ¬èªå¯¾å¿œãƒ•ã‚©ãƒ³ãƒˆ
 			add(label);
 
-			// ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚Ìˆ—
+			// ãƒœã‚¿ãƒ³ãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã¨ãã®å‡¦ç†
 			/*button.addActionListener(e -> {
-			if (!"Ÿ‚Ì’e‚ÌŠm”F".equals(labelText)) { // "Ÿ‚Ì’e‚ÌŠm”F" ˆÈŠO‚Ìƒ{ƒ^ƒ“‚Ì‚İ‰¹‚ğÄ¶
+			if (!"æ¬¡ã®å¼¾ã®ç¢ºèª".equals(labelText)) { // "æ¬¡ã®å¼¾ã®ç¢ºèª" ä»¥å¤–ã®ãƒœã‚¿ãƒ³ã®ã¿éŸ³ã‚’å†ç”Ÿ
 				if (isLiveRound) {
-					playSound("burn.wav"); // À’e
+					playSound("burn.wav"); // å®Ÿå¼¾
 				} else {
-					playSound("vacant.wav"); // ‹ó’e
+					playSound("vacant.wav"); // ç©ºå¼¾
 				}
-				isLiveRound = !isLiveRound; // ’e‚Ìó‘Ô‚ğØ‚è‘Ö‚¦‚é
+				isLiveRound = !isLiveRound; // å¼¾ã®çŠ¶æ…‹ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
 			}
 		});*/
 
@@ -252,7 +250,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		}
 		
 		
-		// ƒƒbƒZ[ƒWóM‚Ì‚½‚ß‚ÌƒXƒŒƒbƒh
+		// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å—ä¿¡ã®ãŸã‚ã®ã‚¹ãƒ¬ãƒƒãƒ‰
     public class MesgRecvThread extends Thread {
         Socket socket;
         String myName;
@@ -264,19 +262,19 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 
 		public void run() {
 			try {
-				boolean isDoublePowerActive = false;  // ‰Î—Í”{‘‚ª—LŒø‚©‚Ç‚¤‚©‚ğŠÇ—‚·‚éƒtƒ‰ƒO
+				boolean isDoublePowerActive = false;  // ç«åŠ›å€å¢—ãŒæœ‰åŠ¹ã‹ã©ã†ã‹ã‚’ç®¡ç†ã™ã‚‹ãƒ•ãƒ©ã‚°
 				InputStreamReader sisr = new InputStreamReader(socket.getInputStream());
 				BufferedReader br = new BufferedReader(sisr);
 				out = new PrintWriter(socket.getOutputStream(), true);
-				out.println(myName);//Ú‘±‚ÌÅ‰‚É–¼‘O‚ğ‘—‚é
+				out.println(myName);//æ¥ç¶šã®æœ€åˆã«åå‰ã‚’é€ã‚‹
 				String myNumberStr = br.readLine();
 				int myNumberInt = Integer.parseInt(myNumberStr);
 				myTurn = myNumberInt % 2 == 0 ? 0 : 1;  // Determine if the player is first or second
-				// ‰Šúƒ^[ƒ“ƒƒbƒZ[ƒW‚ğ•\¦
+				// åˆæœŸã‚¿ãƒ¼ãƒ³ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’è¡¨ç¤º
 				if (myTurn == 0) {
-					messageLabel.setText("‚ ‚È‚½‚ÍæU‚Å‚·I");
+					messageLabel.setText("ã‚ãªãŸã¯å…ˆæ”»ã§ã™ï¼");
 				} else {
-					messageLabel.setText("‚ ‚È‚½‚ÍŒãU‚Å‚·I");
+					messageLabel.setText("ã‚ãªãŸã¯å¾Œæ”»ã§ã™ï¼");
 				}
 
 				while (true) {
@@ -295,7 +293,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 
 
 						if (cmd.equals("Watch")) {
-							playSound("look.wav"); // watchButton‚ª‰Ÿ‚³‚ê‚½‚Élook.wav‚ğÄ¶
+							playSound("look.wav"); // watchButtonãŒæŠ¼ã•ã‚ŒãŸæ™‚ã«look.wavã‚’å†ç”Ÿ
 							// Handle "Watch" command to check the next bullet
 							if (watchCount >= 0) {
 								
@@ -303,14 +301,14 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 								
 								if (myTurn == 0) {
 									if(nextBullet == 1){
-										messageLabel.setText("Ÿ‚Ì’e‚ÍÀ’e‚Å‚·I");
+										messageLabel.setText("æ¬¡ã®å¼¾ã¯å®Ÿå¼¾ã§ã™ï¼");
 									}else{
-										messageLabel.setText("Ÿ‚Ì’e‚Í‹ó’e‚Å‚·I");
+										messageLabel.setText("æ¬¡ã®å¼¾ã¯ç©ºå¼¾ã§ã™ï¼");
 									}
 									watchCount--;
 								} else {
 									
-									messageLabel.setText("‘Šè‚ÍŸ‚Ì’e‚ğŠm”F‚µ‚Ü‚µ‚½");
+									messageLabel.setText("ç›¸æ‰‹ã¯æ¬¡ã®å¼¾ã‚’ç¢ºèªã—ã¾ã—ãŸ");
 									
 								}
 								
@@ -321,96 +319,96 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 							}
 						}
 						if (cmd.equals("Myself")) {
-							int charge = chamber.remove(0); // ’e‚ğ1‚Âæ‚èo‚·
+							int charge = chamber.remove(0); // å¼¾ã‚’1ã¤å–ã‚Šå‡ºã™
 							int decline = charge == 1 ? 1 * powerMultiplier : 0;	
 							
 												
 							if(charge == 1){
-								playSound("burn.wav");  // À’e‚Ì‰¹
+								playSound("burn.wav");  // å®Ÿå¼¾ã®éŸ³
 								
 								if(myTurn == 0){
 									
 									playerHealth -= decline;
-									messageLabel.setText("©•ª‚ÉÀ’e–½’†Ic‚è‘Ì—Í: " + playerHealth);
+									messageLabel.setText("è‡ªåˆ†ã«å®Ÿå¼¾å‘½ä¸­ï¼æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 									myTurn = 1 - myTurn;
 								}else{
 									opponentHealth -= decline;
-									messageLabel.setText("‘Šè‚ÉÀ’e–½’†Ic‚è‘Ì—Í: " + opponentHealth);
+									messageLabel.setText("ç›¸æ‰‹ã«å®Ÿå¼¾å‘½ä¸­ï¼æ®‹ã‚Šä½“åŠ›: " + opponentHealth);
 									myTurn = 1 - myTurn;
 								}
 							}else{
-								playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
+								playSound("vacant.wav");  // ç©ºå¼¾ã®éŸ³
 								if(myTurn == 0){
-									messageLabel.setText("‹ó’e‚Å‚µ‚½Ic‚è‘Ì—Í: " + playerHealth);
+									messageLabel.setText("ç©ºå¼¾ã§ã—ãŸï¼æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 									
 								}else{
-									messageLabel.setText("‘Šè©g‚É‘Å‚¿‚Ü‚µ‚½‚ª‹ó’e‚Å‚µ‚½Ic‚è‘Ì—Í: " + opponentHealth);
+									messageLabel.setText("ç›¸æ‰‹è‡ªèº«ã«æ‰“ã¡ã¾ã—ãŸãŒç©ºå¼¾ã§ã—ãŸï¼æ®‹ã‚Šä½“åŠ›: " + opponentHealth);
 									
 								}
 								 
 							}
 							if (opponentHealth <= 0) {
-								messageLabel.setText("‚ ‚È‚½‚ÌŸ‚¿I");
-								endGame(); // I—¹ˆ—‚ğŒÄ‚Ño‚·
+								messageLabel.setText("ã‚ãªãŸã®å‹ã¡ï¼");
+								endGame(); // çµ‚äº†å‡¦ç†ã‚’å‘¼ã³å‡ºã™
 							} else if (playerHealth <= 0) {
-								messageLabel.setText("‚ ‚È‚½‚Ì•‰‚¯I");
-								endGame(); // I—¹ˆ—‚ğŒÄ‚Ño‚·
+								messageLabel.setText("ã‚ãªãŸã®è² ã‘ï¼");
+								endGame(); // çµ‚äº†å‡¦ç†ã‚’å‘¼ã³å‡ºã™
 							}
 							updateHealthLabels();
 							
 							if (isDoublePowerActive) {
-								powerMultiplier = 1;  // ‰Î—Í‚ğŒ³‚É–ß‚·
-								isDoublePowerActive = false;  // ƒtƒ‰ƒO‚ğƒŠƒZƒbƒg
+								powerMultiplier = 1;  // ç«åŠ›ã‚’å…ƒã«æˆ»ã™
+								isDoublePowerActive = false;  // ãƒ•ãƒ©ã‚°ã‚’ãƒªã‚»ãƒƒãƒˆ
 							}
-							// ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğXV
+							// ãƒœã‚¿ãƒ³ã®çŠ¶æ…‹ã‚’æ›´æ–°
 							updateButtonState(); 
 							
 						}
 							
 						
 						if (cmd.equals("Shot")) {
-							int charge = chamber.remove(0); // ’e‚ğ1‚Âæ‚èo‚·
+							int charge = chamber.remove(0); // å¼¾ã‚’1ã¤å–ã‚Šå‡ºã™
 							int decline = charge == 1 ? 1 * powerMultiplier : 0;	
 							
 												
 							if(charge == 1){
-								playSound("burn.wav");  // À’e‚Ì‰¹
+								playSound("burn.wav");  // å®Ÿå¼¾ã®éŸ³
 								
 								if(myTurn == 0){
 									opponentHealth -= decline;
-									messageLabel.setText("‘Šè‚É”­–C‚µAÀ’e–½’†I‘Šè‚Ìc‚è‘Ì—Í: " + opponentHealth);
+									messageLabel.setText("ç›¸æ‰‹ã«ç™ºç ²ã—ã€å®Ÿå¼¾å‘½ä¸­ï¼ç›¸æ‰‹ã®æ®‹ã‚Šä½“åŠ›: " + opponentHealth);
 									myTurn = 1 - myTurn;
 								}else{
 									playerHealth -= decline;
-									messageLabel.setText("‘Šè‚ª”­–C‚µÀ’e–½’†Ic‚è‘Ì—Í: " + playerHealth);
+									messageLabel.setText("ç›¸æ‰‹ãŒç™ºç ²ã—å®Ÿå¼¾å‘½ä¸­ï¼æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 									myTurn = 1 - myTurn;
 								}
 							}else{
-								playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
+								playSound("vacant.wav");  // ç©ºå¼¾ã®éŸ³
 								
 								if(myTurn == 0){
-									messageLabel.setText("‘Šè‚É‘Å‚¿‚Ü‚µ‚½‚ª‹ó’e‚Å‚µ‚½Ic‚è‘Ì—Í: " + opponentHealth);
+									messageLabel.setText("ç›¸æ‰‹ã«æ‰“ã¡ã¾ã—ãŸãŒç©ºå¼¾ã§ã—ãŸï¼æ®‹ã‚Šä½“åŠ›: " + opponentHealth);
 									myTurn = 1 - myTurn;
 								}else{
-									messageLabel.setText("‘Šè‚ª”­–CA‚µ‚©‚µ‹ó’e‚Å‚µ‚½Ic‚è‘Ì—Í: " + playerHealth);
+									messageLabel.setText("ç›¸æ‰‹ãŒç™ºç ²ã€ã—ã‹ã—ç©ºå¼¾ã§ã—ãŸï¼æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 									myTurn = 1 - myTurn;
 								}
 								 
 							}
 							if (opponentHealth <= 0) {
-								messageLabel.setText("‚ ‚È‚½‚ÌŸ‚¿I");
-								endGame(); // I—¹ˆ—‚ğŒÄ‚Ño‚·
+								messageLabel.setText("ã‚ãªãŸã®å‹ã¡ï¼");
+								endGame(); // çµ‚äº†å‡¦ç†ã‚’å‘¼ã³å‡ºã™
 							} else if (playerHealth <= 0) {
-								messageLabel.setText("‚ ‚È‚½‚Ì•‰‚¯I");
-								endGame(); // I—¹ˆ—‚ğŒÄ‚Ño‚·
+								messageLabel.setText("ã‚ãªãŸã®è² ã‘ï¼");
+								endGame(); // çµ‚äº†å‡¦ç†ã‚’å‘¼ã³å‡ºã™
 							}
 							updateHealthLabels();
 							
 							if (isDoublePowerActive) {
-								powerMultiplier = 1;  // ‰Î—Í‚ğŒ³‚É–ß‚·
-								isDoublePowerActive = false;  // ƒtƒ‰ƒO‚ğƒŠƒZƒbƒg
+								powerMultiplier = 1;  // ç«åŠ›ã‚’å…ƒã«æˆ»ã™
+								isDoublePowerActive = false;  // ãƒ•ãƒ©ã‚°ã‚’ãƒªã‚»ãƒƒãƒˆ
 							}
-							// ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğXV
+							// ãƒœã‚¿ãƒ³ã®çŠ¶æ…‹ã‚’æ›´æ–°
 							updateButtonState(); 
 							
 							
@@ -418,28 +416,28 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 						if (cmd.equals("Double")) {
 											
 								
-							// ‰Î—Í”{‘‚ğ—LŒø‚É‚·‚é
-							powerMultiplier = 2;  // ‰Î—Í”{‘
-							isDoublePowerActive = true;  // ƒtƒ‰ƒO‚ğİ’è‚µ‚ÄAÄ“xg—p‚Å‚«‚È‚¢‚æ‚¤‚É‚·‚é
-							messageLabel.setForeground(Color.YELLOW);  // •¶šF‚ğ‰©F‚Éİ’è
-							messageLabel.setText("‰Î—Í”{‘IŸ‚Ìƒ^[ƒ“‚Í”{‚Ìƒ_ƒ[ƒW‚ğ—^‚¦‚Ü‚·I");
+							// ç«åŠ›å€å¢—ã‚’æœ‰åŠ¹ã«ã™ã‚‹
+							powerMultiplier = 2;  // ç«åŠ›å€å¢—
+							isDoublePowerActive = true;  // ãƒ•ãƒ©ã‚°ã‚’è¨­å®šã—ã¦ã€å†åº¦ä½¿ç”¨ã§ããªã„ã‚ˆã†ã«ã™ã‚‹
+							messageLabel.setForeground(Color.YELLOW);  // æ–‡å­—è‰²ã‚’é»„è‰²ã«è¨­å®š
+							messageLabel.setText("ç«åŠ›å€å¢—ï¼æ¬¡ã®ã‚¿ãƒ¼ãƒ³ã¯å€ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã¾ã™ï¼");
 							doublePowerButton.setEnabled(false);
 							
 						
 						}
-						// ©•ª‚Ìƒ^[ƒ“‚É‚È‚Á‚½ê‡
+						// è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ã«ãªã£ãŸå ´åˆ
 						if (cmd.equals("TurnSwitch")) {
-							turnCount++; // ƒ^[ƒ“”‚ğ1‘‰Á
+							turnCount++; // ã‚¿ãƒ¼ãƒ³æ•°ã‚’1å¢—åŠ 
 							if(myTurn == 0){
 							
 								SwingUtilities.invokeLater(() -> {
-									messageLabel.setText("‚ ‚È‚½‚Ìƒ^[ƒ“‚Å‚·B");
-									updateButtonState(); // ƒ{ƒ^ƒ“‚ğ—LŒø‰»
+									messageLabel.setText("ã‚ãªãŸã®ã‚¿ãƒ¼ãƒ³ã§ã™ã€‚");
+									updateButtonState(); // ãƒœã‚¿ãƒ³ã‚’æœ‰åŠ¹åŒ–
 								});
 						   }else{
 							   SwingUtilities.invokeLater(() -> {
-								messageLabel.setText("‘Šè‚Ìƒ^[ƒ“‚Å‚·");
-								updateButtonState(); // ƒ{ƒ^ƒ“‚ğ–³Œø‰»
+								messageLabel.setText("ç›¸æ‰‹ã®ã‚¿ãƒ¼ãƒ³ã§ã™");
+								updateButtonState(); // ãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹åŒ–
 							});
 						   }
 						}
@@ -456,10 +454,10 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 
 		
 		private void updateButtonState() {
-			// ©•ª‚Ìƒ^[ƒ“‚Ìê‡imyTurn == 0j‚Íƒ{ƒ^ƒ“‚ğ—LŒø‚É‚µAŒãU‚Ìê‡imyTurn == 1j‚Í–³Œø‚É‚·‚é
-			boolean isMyTurn = (myTurn == 0); // ©•ª‚Ìƒ^[ƒ“‚Ì‚İ—LŒø
+			// è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ã®å ´åˆï¼ˆmyTurn == 0ï¼‰ã¯ãƒœã‚¿ãƒ³ã‚’æœ‰åŠ¹ã«ã—ã€å¾Œæ”»ã®å ´åˆï¼ˆmyTurn == 1ï¼‰ã¯ç„¡åŠ¹ã«ã™ã‚‹
+			boolean isMyTurn = (myTurn == 0); // è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ã®ã¿æœ‰åŠ¹
 
-			// Šeƒ{ƒ^ƒ“‚Ì—LŒøE–³Œø‚ğİ’è
+			// å„ãƒœã‚¿ãƒ³ã®æœ‰åŠ¹ãƒ»ç„¡åŠ¹ã‚’è¨­å®š
 			watchButton.setEnabled(isMyTurn);
 			myselfPistolButton.setEnabled(isMyTurn);
 			shotButton.setEnabled(isMyTurn);
@@ -475,17 +473,17 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 			tmp = new ArrayList<>();
 			Random rand = new Random();
 
-			// À’eA‹ó’e‚ğÅ’á‚Å‚à1‚Â”z’u
-			tmp.add(1); // À’e1‚Â
-			tmp.add(0); // ‹ó’e1‚Â
+			// å®Ÿå¼¾ã€ç©ºå¼¾ã‚’æœ€ä½ã§ã‚‚1ã¤é…ç½®
+			tmp.add(1); // å®Ÿå¼¾1ã¤
+			tmp.add(0); // ç©ºå¼¾1ã¤
 
-			// c‚è4‚Â‚ğƒ‰ƒ“ƒ_ƒ€‚ÉÀ’e‚Ü‚½‚Í‹ó’e‚Éİ’è
+			// æ®‹ã‚Š4ã¤ã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«å®Ÿå¼¾ã¾ãŸã¯ç©ºå¼¾ã«è¨­å®š
 			int remainingBulletCount = 4;
 			for (int i = 0; i < remainingBulletCount; i++) {
-				tmp.add(rand.nextInt(2)); // 0‚Ü‚½‚Í1i‹ó’e‚Ü‚½‚ÍÀ’ej
+				tmp.add(rand.nextInt(2)); // 0ã¾ãŸã¯1ï¼ˆç©ºå¼¾ã¾ãŸã¯å®Ÿå¼¾ï¼‰
 			}
 
-			Collections.shuffle(tmp); // ’e‚Ì‡”Ô‚ğƒ‰ƒ“ƒ_ƒ€‚É•À‚×‘Ö‚¦
+			Collections.shuffle(tmp); // å¼¾ã®é †ç•ªã‚’ãƒ©ãƒ³ãƒ€ãƒ ã«ä¸¦ã¹æ›¿ãˆ
 
 			String message = "Chamber ";
 			for (int j = 0; j < tmp.size(); j++) {
@@ -499,16 +497,16 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 
 		private void startGame() {
 
-			// ƒfƒoƒbƒOo—Í
-			System.out.println("chamber ‚Ì“à—e: " + chamber);
+			// ãƒ‡ãƒãƒƒã‚°å‡ºåŠ›
+			System.out.println("chamber ã®å†…å®¹: " + chamber);
 
 			int realBullets = Collections.frequency(chamber, 1);
 			int emptyBullets = Collections.frequency(chamber, 0);
 
-			bulletCountLabel.setText("À’e: " + realBullets + " / ‹ó’e: " + emptyBullets);
+			bulletCountLabel.setText("å®Ÿå¼¾: " + realBullets + " / ç©ºå¼¾: " + emptyBullets);
 
 			startButton.setVisible(false);
-			messageLabel.setText("ƒQ[ƒ€‚ªŠJn‚³‚ê‚Ü‚µ‚½I");
+			messageLabel.setText("ã‚²ãƒ¼ãƒ ãŒé–‹å§‹ã•ã‚Œã¾ã—ãŸï¼");
 			updateButtonState();
 		}
 
@@ -516,29 +514,29 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
    @Override
 	public void mouseClicked(MouseEvent e) {
 		JButton clickedButton = (JButton) e.getComponent();
-		String action = clickedButton.getActionCommand();  // ActionCommand‚ğæ“¾
+		String action = clickedButton.getActionCommand();  // ActionCommandã‚’å–å¾—
 
-		if (myTurn == 0) { // ©•ª‚Ìƒ^[ƒ“‚Ìê‡
+		if (myTurn == 0) { // è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ã®å ´åˆ
 			
 			switch (action) {
-				case "Ÿ‚Ì’e‚ÌŠm”F":
-					watchaction(); // Ÿ‚Ì’e‚ÌŠm”Fˆ—‚ğŒÄ‚Ño‚·
+				case "æ¬¡ã®å¼¾ã®ç¢ºèª":
+					watchaction(); // æ¬¡ã®å¼¾ã®ç¢ºèªå‡¦ç†ã‚’å‘¼ã³å‡ºã™
 					break;
-				case "©•ª‚É‘Å‚Â":
-					shootMyself(); // ©•ª‚É‘Å‚Âˆ—
+				case "è‡ªåˆ†ã«æ‰“ã¤":
+					shootMyself(); // è‡ªåˆ†ã«æ‰“ã¤å‡¦ç†
 					break;
-				case "‘Šè‚É‘Å‚Â":
-					shootOpponent(); // ‘Šè‚É‘Å‚Âˆ—
+				case "ç›¸æ‰‹ã«æ‰“ã¤":
+					shootOpponent(); // ç›¸æ‰‹ã«æ‰“ã¤å‡¦ç†
 					break;
-				case "‰Î—Í”{‘":
-					powerUp(); // ‰Î—Í”{‘‚Ìˆ—
+				case "ç«åŠ›å€å¢—":
+					powerUp(); // ç«åŠ›å€å¢—ã®å‡¦ç†
 					break;
 				default:
 					System.out.println("Unknown action: " + action);
 					break;
 			}
 		} else {
-			messageLabel.setText("‘Šè‚Ìƒ^[ƒ“‚Å‚·");
+			messageLabel.setText("ç›¸æ‰‹ã®ã‚¿ãƒ¼ãƒ³ã§ã™");
 		}
 	}
 
@@ -549,14 +547,14 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 			String message = "Watch ";
 			 out.println(message);
 			/*if (watchCount > 0) {
-				playSound("look.wav"); // watchButton‚ª‰Ÿ‚³‚ê‚½‚Élook.wav‚ğÄ¶
+				playSound("look.wav"); // watchButtonãŒæŠ¼ã•ã‚ŒãŸæ™‚ã«look.wavã‚’å†ç”Ÿ
 				int nextBullet = chamber.get(0);
 				if (nextBullet == 1) {
-					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-					messageLabel.setText("Ÿ‚Ì’e‚ÍÀ’e‚Å‚·I");
+					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // æ—¥æœ¬èªå¯¾å¿œãƒ•ã‚©ãƒ³ãƒˆè¨­å®š
+					messageLabel.setText("æ¬¡ã®å¼¾ã¯å®Ÿå¼¾ã§ã™ï¼");
 				} else {
-					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-					messageLabel.setText("Ÿ‚Ì’e‚Í‹ó’e‚Å‚·I");
+					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // æ—¥æœ¬èªå¯¾å¿œãƒ•ã‚©ãƒ³ãƒˆè¨­å®š
+					messageLabel.setText("æ¬¡ã®å¼¾ã¯ç©ºå¼¾ã§ã™ï¼");
 				}
 				watchCount--;
 				if (watchCount == 0) {
@@ -572,92 +570,92 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 			 
 			 
 		/*if (chamber.isEmpty()) {
-			messageLabel.setText("’e‚ª‚È‚­‚È‚Á‚½IÄ•â[’†...");
-			ratio(); // V‚µ‚¢’e‚ğ•â[
+			messageLabel.setText("å¼¾ãŒãªããªã£ãŸï¼å†è£œå……ä¸­...");
+			ratio(); // æ–°ã—ã„å¼¾ã‚’è£œå……
 			return;
 		}
 		
 		
-		int bullet = chamber.remove(0); // ’e‚ğ1‚Âæ‚èo‚·
+		int bullet = chamber.remove(0); // å¼¾ã‚’1ã¤å–ã‚Šå‡ºã™
 		int damage = bullet == 1 ? 1 * powerMultiplier : 0;
 		for(int i = 0; i<chamber.size();i++){
 			mine += Integer.toString(chamber.get(i));
 		}
-		if (isSelf) { // ©•ª‚ªUŒ‚èi©g‚ÉŒ‚‚Âj
+		if (isSelf) { // è‡ªåˆ†ãŒæ”»æ’ƒæ‰‹ï¼ˆè‡ªèº«ã«æ’ƒã¤ï¼‰
 			
 			if (bullet == 1) {
 				playerHealth -= damage;
 				
-				// ©•ª‚ÉÀ’e–½’†
-				playSound("burn.wav");  // À’e‚Ì‰¹
+				// è‡ªåˆ†ã«å®Ÿå¼¾å‘½ä¸­
+				playSound("burn.wav");  // å®Ÿå¼¾ã®éŸ³
 				SwingUtilities.invokeLater(() -> {
-					messageLabel.setText("©•ª‚ÉÀ’e–½’†Ic‚è‘Ì—Í: " + playerHealth);
+					messageLabel.setText("è‡ªåˆ†ã«å®Ÿå¼¾å‘½ä¸­ï¼æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 				});
 			} else {
-				playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
+				playSound("vacant.wav");  // ç©ºå¼¾ã®éŸ³
 				SwingUtilities.invokeLater(() -> {
-					messageLabel.setText("‹ó’eI©•ª‚Í–³‚Å‚·Bc‚è‘Ì—Í: " + playerHealth);
+					messageLabel.setText("ç©ºå¼¾ï¼è‡ªåˆ†ã¯ç„¡å‚·ã§ã™ã€‚æ®‹ã‚Šä½“åŠ›: " + playerHealth);
 				});
 			}
 			out.println(mine);
-		} else { // ‘Šè‚ªUŒ‚èi‘Šè‚ÉŒ‚‚Âj
-			if (bullet == 1) { // À’e‚Ìê‡
+		} else { // ç›¸æ‰‹ãŒæ”»æ’ƒæ‰‹ï¼ˆç›¸æ‰‹ã«æ’ƒã¤ï¼‰
+			if (bullet == 1) { // å®Ÿå¼¾ã®å ´åˆ
 				opponentHealth -= damage;
-				playSound("burn.wav");  // À’e‚Ì‰¹
+				playSound("burn.wav");  // å®Ÿå¼¾ã®éŸ³
 				SwingUtilities.invokeLater(() -> {
-					messageLabel.setText("‘Šè‚ÉÀ’e–½’†I‘Šè‚Ì‘Ì—Í: " + opponentHealth);
+					messageLabel.setText("ç›¸æ‰‹ã«å®Ÿå¼¾å‘½ä¸­ï¼ç›¸æ‰‹ã®ä½“åŠ›: " + opponentHealth);
 				});
-			} else { // ‹ó’e‚Ìê‡
-				playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
+			} else { // ç©ºå¼¾ã®å ´åˆ
+				playSound("vacant.wav");  // ç©ºå¼¾ã®éŸ³
 				SwingUtilities.invokeLater(() -> {
-					messageLabel.setText("‹ó’e”­ËI‘Šè‚Ì‘Ì—Í‚ÍŒ¸­‚µ‚Ü‚¹‚ñB");
+					messageLabel.setText("ç©ºå¼¾ç™ºå°„ï¼ç›¸æ‰‹ã®ä½“åŠ›ã¯æ¸›å°‘ã—ã¾ã›ã‚“ã€‚");
 				});
 			}
 			out.println(mine);
 		}*/
 
 
-		// ‘Ì—Í‚ª0‚É‚È‚Á‚½ê‡‚ÌƒQ[ƒ€I—¹ˆ—
+		// ä½“åŠ›ãŒ0ã«ãªã£ãŸå ´åˆã®ã‚²ãƒ¼ãƒ çµ‚äº†å‡¦ç†
 		/*if (playerHealth <= 0) {
-			gameOver("‚ ‚È‚½‚Ì•‰‚¯I");
+			gameOver("ã‚ãªãŸã®è² ã‘ï¼");
 		} else if (opponentHealth <= 0) {
-			gameOver("‚ ‚È‚½‚ÌŸ‚¿I");
+			gameOver("ã‚ãªãŸã®å‹ã¡ï¼");
 		}*/
 
-		// ‘Ì—Íƒ‰ƒxƒ‹‚ğXV
+		// ä½“åŠ›ãƒ©ãƒ™ãƒ«ã‚’æ›´æ–°
 		//updateHealthLabels();
 
-		// ‘Šè‚ÉŒ‚‚Á‚½ê‡Aƒ^[ƒ“‚ğI—¹‚·‚éˆ—
-		/*if (!isSelf) { // ‘Šè‚ÉŒ‚‚Á‚½ê‡
-			myTurn = 1 - myTurn; // ƒ^[ƒ“‚ğØ‚è‘Ö‚¦‚é
-			if (bullet == 1) { // À’e‚Ìê‡
-				messageLabel.setText("À’e”­ËI‘Šè‚Ìƒ^[ƒ“‚Å‚·B");
-			} else { // ‹ó’e‚Ìê‡
-				messageLabel.setText("‹ó’e”­ËI‘Šè‚Ìƒ^[ƒ“‚Å‚·B");
+		// ç›¸æ‰‹ã«æ’ƒã£ãŸå ´åˆã€ã‚¿ãƒ¼ãƒ³ã‚’çµ‚äº†ã™ã‚‹å‡¦ç†
+		/*if (!isSelf) { // ç›¸æ‰‹ã«æ’ƒã£ãŸå ´åˆ
+			myTurn = 1 - myTurn; // ã‚¿ãƒ¼ãƒ³ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
+			if (bullet == 1) { // å®Ÿå¼¾ã®å ´åˆ
+				messageLabel.setText("å®Ÿå¼¾ç™ºå°„ï¼ç›¸æ‰‹ã®ã‚¿ãƒ¼ãƒ³ã§ã™ã€‚");
+			} else { // ç©ºå¼¾ã®å ´åˆ
+				messageLabel.setText("ç©ºå¼¾ç™ºå°„ï¼ç›¸æ‰‹ã®ã‚¿ãƒ¼ãƒ³ã§ã™ã€‚");
 			}
-			out.println("TurnSwitch"); // ƒT[ƒo[‚Éƒ^[ƒ“Ø‚è‘Ö‚¦‚ğ’Ê’m
+			out.println("TurnSwitch"); // ã‚µãƒ¼ãƒãƒ¼ã«ã‚¿ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆã‚’é€šçŸ¥
 			out.flush();
-		} else { // ©•ª‚Ìƒ^[ƒ“imyselfj
+		} else { // è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ï¼ˆmyselfï¼‰
 			if (bullet == 1) {
-				messageLabel.setText("À’e”­ËIƒ^[ƒ“‚ªI—¹‚µ‚Ü‚·B");
+				messageLabel.setText("å®Ÿå¼¾ç™ºå°„ï¼ã‚¿ãƒ¼ãƒ³ãŒçµ‚äº†ã—ã¾ã™ã€‚");
 				myTurn = 1 - myTurn;
-				out.println("TurnSwitch"); // ƒT[ƒo[‚Éƒ^[ƒ“Ø‚è‘Ö‚¦‚ğ’Ê’m
+				out.println("TurnSwitch"); // ã‚µãƒ¼ãƒãƒ¼ã«ã‚¿ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆã‚’é€šçŸ¥
 				out.flush();
 			} else {
-				messageLabel.setText("‹ó’e”­ËI©•ª‚Ìƒ^[ƒ“‚ª‘±‚«‚Ü‚·B");
-				// ‹ó’e‚¾‚Á‚½ê‡Aƒ^[ƒ“‚Í‘±s
+				messageLabel.setText("ç©ºå¼¾ç™ºå°„ï¼è‡ªåˆ†ã®ã‚¿ãƒ¼ãƒ³ãŒç¶šãã¾ã™ã€‚");
+				// ç©ºå¼¾ã ã£ãŸå ´åˆã€ã‚¿ãƒ¼ãƒ³ã¯ç¶šè¡Œ
 				return;
 			}
-			out.println("TurnSwitch"); // ƒT[ƒo[‚Éƒ^[ƒ“Ø‚è‘Ö‚¦‚ğ’Ê’m
+			out.println("TurnSwitch"); // ã‚µãƒ¼ãƒãƒ¼ã«ã‚¿ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆã‚’é€šçŸ¥
 			out.flush();
 		}*/
 		
-		// ‰Î—Í”{‘‚ğŒ³‚É–ß‚·ˆ—
+		// ç«åŠ›å€å¢—ã‚’å…ƒã«æˆ»ã™å‡¦ç†
 		/*if (isDoublePowerActive) {
-			powerMultiplier = 1;  // ‰Î—Í‚ğŒ³‚É–ß‚·
-			isDoublePowerActive = false;  // ƒtƒ‰ƒO‚ğƒŠƒZƒbƒg
+			powerMultiplier = 1;  // ç«åŠ›ã‚’å…ƒã«æˆ»ã™
+			isDoublePowerActive = false;  // ãƒ•ãƒ©ã‚°ã‚’ãƒªã‚»ãƒƒãƒˆ
 		}
-		// ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğXV
+		// ãƒœã‚¿ãƒ³ã®çŠ¶æ…‹ã‚’æ›´æ–°
 		updateButtonState(); */
 		
 	}
@@ -680,30 +678,30 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 
     
 
-		//private boolean isDoublePowerActive = false;  // ‰Î—Í”{‘‚ª—LŒø‚©‚Ç‚¤‚©‚ğŠÇ—‚·‚éƒtƒ‰ƒO
+		//private boolean isDoublePowerActive = false;  // ç«åŠ›å€å¢—ãŒæœ‰åŠ¹ã‹ã©ã†ã‹ã‚’ç®¡ç†ã™ã‚‹ãƒ•ãƒ©ã‚°
 
 		private void doublepower() {
 			String message = "Double ";
 			 out.println(message);
 			
 			/*if (isDoublePowerActive) {
-				// Šù‚É‰Î—Í”{‘‚ª—LŒø‚Èê‡
-				messageLabel.setText("‰Î—Í”{‘‚ÍŠù‚Ég—pÏ‚İ‚Å‚·I");
-				return;  // ‰½‚à‚µ‚È‚¢
+				// æ—¢ã«ç«åŠ›å€å¢—ãŒæœ‰åŠ¹ãªå ´åˆ
+				messageLabel.setText("ç«åŠ›å€å¢—ã¯æ—¢ã«ä½¿ç”¨æ¸ˆã¿ã§ã™ï¼");
+				return;  // ä½•ã‚‚ã—ãªã„
 			}
 			
-			// ‰Î—Í”{‘‚ğ—LŒø‚É‚·‚é
-			powerMultiplier = 2;  // ‰Î—Í”{‘
-			isDoublePowerActive = true;  // ƒtƒ‰ƒO‚ğİ’è‚µ‚ÄAÄ“xg—p‚Å‚«‚È‚¢‚æ‚¤‚É‚·‚é
-			messageLabel.setForeground(Color.YELLOW);  // •¶šF‚ğ‰©F‚Éİ’è
-			messageLabel.setText("‰Î—Í”{‘IŸ‚Ìƒ^[ƒ“‚Í”{‚Ìƒ_ƒ[ƒW‚ğ—^‚¦‚Ü‚·I");
+			// ç«åŠ›å€å¢—ã‚’æœ‰åŠ¹ã«ã™ã‚‹
+			powerMultiplier = 2;  // ç«åŠ›å€å¢—
+			isDoublePowerActive = true;  // ãƒ•ãƒ©ã‚°ã‚’è¨­å®šã—ã¦ã€å†åº¦ä½¿ç”¨ã§ããªã„ã‚ˆã†ã«ã™ã‚‹
+			messageLabel.setForeground(Color.YELLOW);  // æ–‡å­—è‰²ã‚’é»„è‰²ã«è¨­å®š
+			messageLabel.setText("ç«åŠ›å€å¢—ï¼æ¬¡ã®ã‚¿ãƒ¼ãƒ³ã¯å€ã®ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã¾ã™ï¼");
 
-			// ƒ{ƒ^ƒ“‚ğ–³Œø‚É‚·‚é
+			// ãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹ã«ã™ã‚‹
 			doublePowerButton.setEnabled(false);
 			
-			// ‰Î—Í”{‘‚ª“K—p‚³‚ê‚½ƒ^[ƒ“‚ªI‚í‚Á‚½Œã‚ÉŒ³‚É–ß‚·
+			// ç«åŠ›å€å¢—ãŒé©ç”¨ã•ã‚ŒãŸã‚¿ãƒ¼ãƒ³ãŒçµ‚ã‚ã£ãŸå¾Œã«å…ƒã«æˆ»ã™
 			
-			// powerMultiplier = 1;  // ‰Î—Í‚ğŒ³‚É–ß‚·*/
+			// powerMultiplier = 1;  // ç«åŠ›ã‚’å…ƒã«æˆ»ã™*/
 		}
 		
 
@@ -714,36 +712,36 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		
 		
 		private void endGame() {
-			// ƒƒCƒ“ƒ{ƒ^ƒ“‚ğ–³Œø‰»
+			// ãƒ¡ã‚¤ãƒ³ãƒœã‚¿ãƒ³ã‚’ç„¡åŠ¹åŒ–
 			watchButton.setEnabled(false);
 			myselfPistolButton.setEnabled(false);
 			shotButton.setEnabled(false);
 			doublePowerButton.setEnabled(false);
 
-			// ÄƒvƒŒƒC‚ÆI—¹ƒ{ƒ^ƒ“‚ğ•\¦
+			// å†ãƒ—ãƒ¬ã‚¤ã¨çµ‚äº†ãƒœã‚¿ãƒ³ã‚’è¡¨ç¤º
 			replayButton.setVisible(true);
 			exitButton.setVisible(true);
 		}
 		
 		private void resetGame() {
-			// ƒQ[ƒ€‚Ìó‘Ô‚ğ‰Šú‰»
-			playerHealth = 10; // ‰Šú‘Ì—Í
-			opponentHealth = 10; // ‰Šú‘Ì—Í
-			powerMultiplier = 1; // ‰Î—Í”{—¦‚Ì‰Šú‰»
+			// ã‚²ãƒ¼ãƒ ã®çŠ¶æ…‹ã‚’åˆæœŸåŒ–
+			playerHealth = 10; // åˆæœŸä½“åŠ›
+			opponentHealth = 10; // åˆæœŸä½“åŠ›
+			powerMultiplier = 1; // ç«åŠ›å€ç‡ã®åˆæœŸåŒ–
 			watchCount = 2;
-			turnCount = 0; // ƒ^[ƒ“”‚ğƒŠƒZƒbƒg
-			isLiveRound = true; // ’e‚Ìó‘Ô‰Šú‰»
-			chamber.clear(); // ƒ`ƒFƒ“ƒo[‚ğƒŠƒZƒbƒg
-			ratio(); // ƒ`ƒFƒ“ƒo[‚Ì‰Šú‰»
+			turnCount = 0; // ã‚¿ãƒ¼ãƒ³æ•°ã‚’ãƒªã‚»ãƒƒãƒˆ
+			isLiveRound = true; // å¼¾ã®çŠ¶æ…‹åˆæœŸåŒ–
+			chamber.clear(); // ãƒã‚§ãƒ³ãƒãƒ¼ã‚’ãƒªã‚»ãƒƒãƒˆ
+			ratio(); // ãƒã‚§ãƒ³ãƒãƒ¼ã®åˆæœŸåŒ–
 
-			// ƒ‰ƒxƒ‹‚ğƒŠƒZƒbƒg
-			messageLabel.setText("ƒQ[ƒ€‚ªƒŠƒZƒbƒg‚³‚ê‚Ü‚µ‚½BV‚µ‚¢ƒQ[ƒ€‚ğŠJn‚µ‚Ü‚·I");
+			// ãƒ©ãƒ™ãƒ«ã‚’ãƒªã‚»ãƒƒãƒˆ
+			messageLabel.setText("ã‚²ãƒ¼ãƒ ãŒãƒªã‚»ãƒƒãƒˆã•ã‚Œã¾ã—ãŸã€‚æ–°ã—ã„ã‚²ãƒ¼ãƒ ã‚’é–‹å§‹ã—ã¾ã™ï¼");
 			updateHealthLabels();
 
-			// ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğƒŠƒZƒbƒg
-			replayButton.setVisible(false); // ÄƒvƒŒƒCƒ{ƒ^ƒ“‚ğ”ñ•\¦
-			exitButton.setVisible(false);   // I—¹ƒ{ƒ^ƒ“‚ğ”ñ•\¦
-			updateButtonState();            // ƒƒCƒ“ƒ{ƒ^ƒ“‚Ì—LŒø‰»
+			// ãƒœã‚¿ãƒ³ã®çŠ¶æ…‹ã‚’ãƒªã‚»ãƒƒãƒˆ
+			replayButton.setVisible(false); // å†ãƒ—ãƒ¬ã‚¤ãƒœã‚¿ãƒ³ã‚’éè¡¨ç¤º
+			exitButton.setVisible(false);   // çµ‚äº†ãƒœã‚¿ãƒ³ã‚’éè¡¨ç¤º
+			updateButtonState();            // ãƒ¡ã‚¤ãƒ³ãƒœã‚¿ãƒ³ã®æœ‰åŠ¹åŒ–
 		}
 
 
@@ -754,7 +752,7 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
 		private void updateBulletCountLabel() {
 			int realBullets = Collections.frequency(chamber, 1);
 			int emptyBullets = Collections.frequency(chamber, 0);
-			bulletCountLabel.setText("À’e: " + realBullets + " / ‹ó’e: " + emptyBullets);
+			bulletCountLabel.setText("å®Ÿå¼¾: " + realBullets + " / ç©ºå¼¾: " + emptyBullets);
 		}
 	   
 
@@ -782,501 +780,3 @@ public class MyClient extends JFrame implements MouseListener, MouseMotionListen
         new MyClient();
     }
 }
-
-
-	   
-=======
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
-    }
-}
-
-public class MyClient extends JFrame implements MouseListener, MouseMotionListener {
-    private JButton shotButton, myselfPistolButton, watchButton, doublePowerButton, startButton;
-    private JLabel playerHealthLabel, opponentHealthLabel, messageLabel, bulletCountLabel;
-    private int playerHealth = 3;
-    private int opponentHealth = 3;
-    private ArrayList<Integer> chamber;
-    private int myTurn; // 0: æU, 1: ŒãU
-    private int watchCount = 2;
-    private int powerMultiplier = 1; // ‰Î—Í‚Ì”{—¦
-    private PrintWriter out;
-    private String serverIP;
-    private String myName;
-    private Socket socket;	
-	 // ’e‚Ìó‘Ô‚ğ•Û‚·‚é•Ï”
-    private boolean isLiveRound = true;  // À’e‚©‹ó’e‚©itrue: À’eAfalse: ‹ó’ej
-
-    public MyClient() {
-        // –¼‘O‚Ì“ü—Íƒ_ƒCƒAƒƒO‚ğŠJ‚­
-        String myName = JOptionPane.showInputDialog(null, "–¼‘O‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢", "–¼‘O‚Ì“ü—Í", JOptionPane.QUESTION_MESSAGE);
-        if (myName == null || myName.equals("")) {
-            myName = "No name"; // null‚Ü‚½‚Í‹ó•¶š—ñ‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒg–¼‚ğİ’è
-        }
-
-        String serverIP = JOptionPane.showInputDialog(null, "ƒT[ƒo[‚Ì–¼‘O‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢", "ƒT[ƒo[‚Ì“ü—Í", JOptionPane.QUESTION_MESSAGE);
-        if (serverIP == null || serverIP.equals("")) {
-            serverIP = "localhost"; // null‚Ü‚½‚Í‹ó•¶š—ñ‚Ìê‡‚Ílocalhost‚ğİ’è
-        }
-
-        // Setup JFrame with custom background
-        setContentPane(new BackgroundPanel("/tabletop.png"));
-        setLayout(null);
-
-        // Player and opponent icons
-        JLabel playerIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
-        playerIcon.setBounds(50, 50, 100, 100);
-        add(playerIcon);
-
-        JLabel opponentIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
-        opponentIcon.setBounds(650, 50, 100, 100);
-        add(opponentIcon);
-
-        // Start button
-        startButton = new JButton("ƒQ[ƒ€ŠJn");
-        startButton.setBounds(300, 250, 200, 50);
-        startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                startGame();
-            }
-        });
-        add(startButton);
-
-        // Bullet count label (for displaying bullet counts)
-        bulletCountLabel = new JLabel();
-        bulletCountLabel.setBounds(250, 200, 300, 30);
-        bulletCountLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-        bulletCountLabel.setForeground(Color.YELLOW);
-        add(bulletCountLabel);
-
-        // Health labels
-        playerHealthLabel = new JLabel("Player Health: " + playerHealth);
-        playerHealthLabel.setBounds(50, 160, 200, 30);
-        playerHealthLabel.setForeground(Color.WHITE);
-        add(playerHealthLabel);
-
-        opponentHealthLabel = new JLabel("Opponent Health: " + opponentHealth);
-        opponentHealthLabel.setBounds(650, 160, 200, 30);
-        opponentHealthLabel.setForeground(Color.WHITE);
-        add(opponentHealthLabel);
-
-        // Message label
-        messageLabel = new JLabel("ƒQ[ƒ€ŠJn", SwingConstants.CENTER);
-        messageLabel.setBounds(200, 500, 400, 30);
-        messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-        messageLabel.setForeground(Color.YELLOW);
-        add(messageLabel);
-
-        // Buttons placed below the start button
-       //ƒ{ƒ^ƒ“ì¬
-		watchButton = createButton("eye.jpg", 50, 350, "Ÿ‚Ì’e‚ÌŠm”F");
-		watchButton.setEnabled(false);
-		watchButton.addActionListener(e -> {
-			watchaction(); // Ÿ‚Ì’e‚ÌŠm”Fˆ—
-		});
-		add(watchButton);
-
-
-        myselfPistolButton = createButton("myself_pistol.jpg", 250, 350, "©•ª‚É‘Å‚Â");
-		myselfPistolButton.setEnabled(false);
-        add(myselfPistolButton);
-
-        shotButton = createButton("pistol.jpeg", 450, 350, "‘Šè‚É‘Å‚Â");
-		shotButton.setEnabled(false);
-        add(shotButton);
-
-        doublePowerButton = createButton("double_power.jpg", 650, 350, "‰Î—Í”{‘");
-		doublePowerButton.setEnabled(false);
-        add(doublePowerButton);
-
-        // ƒEƒBƒ“ƒhƒE‚ğì¬‚·‚é
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
-        setTitle("eŒ‚ƒQ[ƒ€");
-        setVisible(true);
-
-        // Connect to server
-        Socket socket = null;
-        try {
-            socket = new Socket(serverIP, 10000);
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
-            // MesgRecvThread‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚É“KØ‚Èˆø”‚ğ“n‚·
-            new MesgRecvThread(socket, myName).start();
-            out.println(new String(myName.getBytes("UTF-8"), "UTF-8")); // –¼‘O‚àUTF-8‚Å‘—M
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "ƒT[ƒo[‚Ö‚ÌÚ‘±‚É¸”s‚µ‚Ü‚µ‚½: " + e.getMessage());
-            System.exit(1);
-        }
-
-        // Initialize chamber
-        ratio();
-        MesgRecvThread mrt = new MesgRecvThread(socket, myName); //óM—p‚ÌƒXƒŒƒbƒh‚ğì¬‚·‚é
-        mrt.start(); //ƒXƒŒƒbƒh‚ğ“®‚©‚·iRun‚ª“®‚­j
-    }
-
-    // Add methods outside the constructor
-    private void shootMyself() {
-        handleShot(true); // Call the existing `handleShot()` method with true to simulate self-shot
-    }
-
-    private void shootOpponent() {
-        handleShot(false); // Call the existing `handleShot()` method with false to simulate shooting the opponent
-    }
-
-    private void doublePower() {
-        doublepower(); // Call the existing `doublepower()` method to double the damage
-    }
-	
-	 private void playSound(String soundFileName) {
-		
-		try {
-			// ƒtƒ@ƒCƒ‹‚ÌƒpƒX‚ğw’è‚µ‚ÄAudioInputStream‚ğæ“¾
-			File soundFile = new File(getClass().getResource("/" + soundFileName).toURI());
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-			Clip clip = AudioSystem.getClip();
-			clip.open(audioStream);
-			clip.start(); // ‰¹‚ğÄ¶
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	 
-
-
-
-    private JButton createButton(String iconPath, int x, int y, String labelText) {
-		JButton button = new JButton(new ImageIcon(getClass().getResource(iconPath)));
-		button.setBounds(x, y, 150, 80); // ƒ{ƒ^ƒ“‚ÌƒTƒCƒY‚ğ’²®
-		button.setFocusPainted(false);
-		button.setBackground(new Color(60, 63, 65));
-		button.setOpaque(false);
-		button.addMouseListener(this);
-		button.setActionCommand(labelText);
-
-		// ƒ{ƒ^ƒ“‚Ì‰º‚É•¶š‚ğ’Ç‰Á
-		JLabel label = new JLabel(labelText, SwingConstants.CENTER);
-		label.setBounds(x, y + 80, 150, 30);
-		label.setForeground(Color.WHITE);
-		label.setFont(new Font("MS Gothic", Font.BOLD, 12)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒg
-		add(label);
-
-		// ƒ{ƒ^ƒ“‚ªƒNƒŠƒbƒN‚³‚ê‚½‚Æ‚«‚Ìˆ—
-		button.addActionListener(e -> {
-		if (!"Ÿ‚Ì’e‚ÌŠm”F".equals(labelText)) { // "Ÿ‚Ì’e‚ÌŠm”F" ˆÈŠO‚Ìƒ{ƒ^ƒ“‚Ì‚İ‰¹‚ğÄ¶
-			if (isLiveRound) {
-				playSound("burn.wav"); // À’e
-			} else {
-				playSound("vacant.wav"); // ‹ó’e
-			}
-			isLiveRound = !isLiveRound; // ’e‚Ìó‘Ô‚ğØ‚è‘Ö‚¦‚é
-		}
-	});
-
-
-		return button;
-	}
-
-	
-
-    // ƒƒbƒZ[ƒWóM‚Ì‚½‚ß‚ÌƒXƒŒƒbƒh
-    public class MesgRecvThread extends Thread {
-        Socket socket;
-        String myName;
-
-        public MesgRecvThread(Socket s, String n) {
-            socket = s;
-            myName = n;
-        }
-
-        public void run() {
-            try {
-                InputStreamReader sisr = new InputStreamReader(socket.getInputStream());
-                BufferedReader br = new BufferedReader(sisr);
-                out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(myName);  // Send name at the start of the connection
-
-                String myNumberStr = br.readLine();
-                int myNumberInt = Integer.parseInt(myNumberStr);
-                myTurn = myNumberInt % 2 == 0 ? 0 : 1;  // Determine if the player is first or second
-                // ‰Šúƒ^[ƒ“ƒƒbƒZ[ƒW‚ğ•\¦
-                if (myTurn == 0) {
-                    messageLabel.setText("‚ ‚È‚½‚ÍæU‚Å‚·I");
-                } else {
-                    messageLabel.setText("‚ ‚È‚½‚ÍŒãU‚Å‚·I");
-                }
-
-                while (true) {
-                    String inputLine = br.readLine();
-                    if (inputLine != null) {
-                        String[] inputTokens = inputLine.split(" ");
-                        String cmd = inputTokens[0];
-
-                        if (cmd.equals("Watch")) {
-                            // Handle "Watch" command to check the next bullet
-                            if (watchCount > 0) {
-                                int nextBullet = chamber.get(0);  // Look at the next bullet in the chamber
-                                if (nextBullet == 1) {
-                                    messageLabel.setText("Ÿ‚Ì’e‚ÍÀ’e‚Å‚·I");
-                                } else {
-                                    messageLabel.setText("Ÿ‚Ì’e‚Í‹ó’e‚Å‚·I");
-                                }
-                                watchCount--;  // Decrease watch count
-                                updateBulletCountLabel();  // Update the bullet count on the UI
-                                if (watchCount == 0) {
-                                    watchButton.setEnabled(false);  // Disable watch button if no more watches left
-                                }
-                            } else {
-                                messageLabel.setText("Ÿ‚Ì’e‚ÌŠm”F‚Í‚à‚¤‚Å‚«‚Ü‚¹‚ñB");
-                            }
-                        }
-                        if (cmd.equals("Myself")) {
-                            // Handle "Myself" command when the player shoots themselves
-                            handleShot(true);  // Invoke the shot method with 'true' to simulate a self-shot
-                        }
-                        if (cmd.equals("Opponent")) {
-                            // Handle "Opponent" command when the player shoots the opponent
-                            handleShot(false);  // Invoke the shot method with 'false' to simulate shooting the opponent
-                        }
-                        if (cmd.equals("Double")) {
-                            // Handle "Double" command when the player uses double power
-                            doublepower();
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-	
-	 // Update button states based on the turn
-	  private void updateButtonState() {
-		// ©•ª‚Ìƒ^[ƒ“‚Ìê‡imyTurn == 0j‚Íƒ{ƒ^ƒ“‚ğ—LŒø‚É‚µAŒãU‚Ìê‡imyTurn == 1j‚Í–³Œø‚É‚·‚é
-		boolean isMyTurn = (myTurn == 0); // ©•ª‚Ìƒ^[ƒ“‚Ì‚İ—LŒø
-
-		// Šeƒ{ƒ^ƒ“‚Ì—LŒøE–³Œø‚ğİ’è
-		watchButton.setEnabled(isMyTurn);
-		myselfPistolButton.setEnabled(isMyTurn);
-		shotButton.setEnabled(isMyTurn);
-		doublePowerButton.setEnabled(isMyTurn);
-	}
-
-
-
-    private void ratio() {
-        chamber = new ArrayList<>();
-        Random rand = new Random();
-
-        // À’e‚ğÅ’á‚Å‚à1‚Â”z’u
-        chamber.add(1); // À’e1‚Â
-
-        // c‚è5‚Â‚ğƒ‰ƒ“ƒ_ƒ€‚ÉÀ’e‚Ü‚½‚Í‹ó’e‚Éİ’è
-        int remainingBulletCount = 5;
-        for (int i = 0; i < remainingBulletCount; i++) {
-            chamber.add(rand.nextInt(2)); // 0‚Ü‚½‚Í1i‹ó’e‚Ü‚½‚ÍÀ’ej
-        }
-
-        Collections.shuffle(chamber); // ’e‚Ì‡”Ô‚ğƒ‰ƒ“ƒ_ƒ€‚É•À‚×‘Ö‚¦
-    }
-
-    private void startGame() {
-        // ƒQ[ƒ€ŠJn‚ÉÀ’e‚Æ‹ó’e‚Ì”‚ğ•\¦
-        int realBullets = Collections.frequency(chamber, 1);
-        int emptyBullets = Collections.frequency(chamber, 0);
-        bulletCountLabel.setText("À’e: " + realBullets + " / ‹ó’e: " + emptyBullets);
-
-        // ƒXƒ^[ƒgƒ{ƒ^ƒ“‚ğ”ñ•\¦‚É‚·‚é
-        startButton.setVisible(false);
-
-        // ƒQ[ƒ€ŠJnƒƒbƒZ[ƒW‚ğXV
-        messageLabel.setText("ƒQ[ƒ€‚ªŠJn‚³‚ê‚Ü‚µ‚½I");
-		
-		updateButtonState();
-    }
-
-   @Override
-	public void mouseClicked(MouseEvent e) {
-		JButton clickedButton = (JButton) e.getComponent();
-		String action = clickedButton.getActionCommand();  // ActionCommand‚ğæ“¾
-		System.out.println("Button clicked: " + action);  // Debug print
-
-		if (myTurn == 0) { // ©•ª‚Ìƒ^[ƒ“‚Ìê‡
-			switch (action) {
-				case "Ÿ‚Ì’e‚ÌŠm”F":
-					watchaction(); // Ÿ‚Ì’e‚ÌŠm”Fˆ—‚ğŒÄ‚Ño‚·
-					break;
-				case "©•ª‚É‘Å‚Â":
-					shootMyself(); // ©•ª‚É‘Å‚Âˆ—
-					break;
-				case "‘Šè‚É‘Å‚Â":
-					shootOpponent(); // ‘Šè‚É‘Å‚Âˆ—
-					break;
-				case "‰Î—Í”{‘":
-					doublePower(); // ‰Î—Í”{‘‚Ìˆ—
-					break;
-				default:
-					System.out.println("Unknown action: " + action);
-					break;
-			}
-		} else {
-			messageLabel.setText("‘Šè‚Ìƒ^[ƒ“‚Å‚·");
-		}
-	}
-
-
-
-
-    private void watchaction() {
-    if (watchCount > 0) {
-        playSound("look.wav"); // watchButton‚ª‰Ÿ‚³‚ê‚½‚Élook.wav‚ğÄ¶
-        int nextBullet = chamber.get(0);
-        if (nextBullet == 1) {
-            messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-            messageLabel.setText("Ÿ‚Ì’e‚ÍÀ’e‚Å‚·I");
-        } else {
-            messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // “ú–{Œê‘Î‰ƒtƒHƒ“ƒgİ’è
-            messageLabel.setText("Ÿ‚Ì’e‚Í‹ó’e‚Å‚·I");
-        }
-        watchCount--;
-        if (watchCount == 0) {
-            watchButton.setEnabled(false);
-        }
-    }
-}
-
-   private void handleShot(boolean isSelf) {
-    if (chamber.isEmpty()) {
-        messageLabel.setText("’e‚ª‚È‚­‚È‚Á‚½IÄ•â[’†...");
-        ratio(); // V‚µ‚¢’e‚ğ•â[
-        return;
-    }
-
-    int bullet = chamber.remove(0); // ’e‚ğ1‚Âæ‚èo‚·
-    int damage = bullet == 1 ? 1 * powerMultiplier : 0;
-
-    if (isSelf) { // ©•ª‚ªUŒ‚èi©g‚ÉŒ‚‚Âj
-        playerHealth -= damage;
-        if (bullet == 1) {
-            // ©•ª‚ÉÀ’e–½’†
-			playSound("burn.wav");  // À’e‚Ì‰¹
-            messageLabel.setText("©•ª‚ÉÀ’e–½’†Ic‚è‘Ì—Í: " + playerHealth);
-        } else {
-			playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
-            messageLabel.setText("‹ó’eI©•ª‚Í–³‚Å‚·Bc‚è‘Ì—Í: " + playerHealth);
-        }
-    } else { // ‘Šè‚ªUŒ‚èi‘Šè‚ÉŒ‚‚Âj
-        if (bullet == 1) { // À’e‚Ìê‡
-            opponentHealth -= damage;
-			playSound("burn.wav");  // À’e‚Ì‰¹
-            messageLabel.setText("‘Šè‚ÉÀ’e–½’†I‘Šè‚Ì‘Ì—Í: " + opponentHealth);
-        } else { // ‹ó’e‚Ìê‡
-			playSound("vacant.wav");  // ‹ó’e‚Ì‰¹
-            messageLabel.setText("‹ó’e”­ËI‘Šè‚Ì‘Ì—Í‚ÍŒ¸­‚µ‚Ü‚¹‚ñB");
-        }
-		out.println("TurnSwitch"); // ƒT[ƒo[‚Éƒ^[ƒ“Ø‚è‘Ö‚¦‚ğ’Ê’m
-		out.flush();
-
-    }
-
-    // ‘Ì—Í‚ª0‚É‚È‚Á‚½ê‡‚ÌƒQ[ƒ€I—¹ˆ—
-    if (playerHealth <= 0) {
-        gameOver("‚ ‚È‚½‚Ì•‰‚¯I");
-    } else if (opponentHealth <= 0) {
-        gameOver("‚ ‚È‚½‚ÌŸ‚¿I");
-    }
-
-    // ‘Ì—Íƒ‰ƒxƒ‹‚ğXV
-    updateHealthLabels();
-
-    // ‘Šè‚ÉŒ‚‚Á‚½ê‡Aƒ^[ƒ“‚ğI—¹‚·‚éˆ—
-    if (!isSelf) { // ‘Šè‚ÉŒ‚‚Á‚½ê‡
-        myTurn = 1 - myTurn; // ƒ^[ƒ“‚ğØ‚è‘Ö‚¦‚é
-        if (bullet == 1) { // À’e‚Ìê‡
-            messageLabel.setText("À’e”­ËI‘Šè‚Ìƒ^[ƒ“‚Å‚·B");
-        } else { // ‹ó’e‚Ìê‡
-            messageLabel.setText("‹ó’e”­ËI‘Šè‚Ìƒ^[ƒ“‚Å‚·B");
-        }
-        out.println("TurnSwitch"); // ƒT[ƒo[‚Éƒ^[ƒ“Ø‚è‘Ö‚¦‚ğ’Ê’m
-        out.flush();
-    } else { // ©•ª‚Ìƒ^[ƒ“imyselfj
-        if (bullet == 1) {
-            messageLabel.setText("À’e”­ËIƒ^[ƒ“‚ªI—¹‚µ‚Ü‚·B");
-        } else {
-            messageLabel.setText("‹ó’e”­ËI©•ª‚Ìƒ^[ƒ“‚ª‘±‚«‚Ü‚·B");
-            // ‹ó’e‚¾‚Á‚½ê‡Aƒ^[ƒ“‚Í‘±s
-            return;
-        }
-    }
-	// ƒ{ƒ^ƒ“‚Ìó‘Ô‚ğXV
-    updateButtonState(); 
-}
-
-
-
-private void updateHealthLabels() {
-    playerHealthLabel.setText("Player Health: " + playerHealth);
-    opponentHealthLabel.setText("Opponent Health: " + opponentHealth);
-}
-
-
-    private void gameOver(String message) {
-        messageLabel.setText(message);
-        shotButton.setEnabled(false);
-        myselfPistolButton.setEnabled(false);
-        watchButton.setEnabled(false);
-        doublePowerButton.setEnabled(false);
-        // ƒQ[ƒ€I—¹Œã‚Ìˆ—
-        // •K—v‚É‰‚¶‚Ä’Ç‰Áˆ—iƒŠƒZƒbƒg‚âÄ‹N“®j‚È‚Ç
-    }
-
-    
-
-    private void doublepower() {
-        powerMultiplier = 2;  // ‰Î—Í”{‘
-        messageLabel.setForeground(Color.YELLOW);  // •¶šF‚ğ‰©F‚Éİ’è
-        messageLabel.setText("‰Î—Í”{‘IŸ‚Ìƒ^[ƒ“‚Í”{‚Ìƒ_ƒ[ƒW‚ğ—^‚¦‚Ü‚·I");
-		 // ‚±‚±‚Å‘Šè‚É‘Î‚µ‚ÄUŒ‚‚ğs‚¢A‘Šè‚Ì‘Ì—Í‚ª0ˆÈ‰º‚È‚çI—¹ˆ—‚ğs‚¤
-		if (opponentHealth <= 0) {
-			gameOver("‚ ‚È‚½‚ÌŸ‚¿I");  // ‘Šè‚Ì‘Ì—Í‚ª0ˆÈ‰º‚È‚çŸ‚¿‚Æ‚µ‚ÄƒQ[ƒ€I—¹
-		} else if (playerHealth <= 0) {
-			gameOver("‚ ‚È‚½‚Ì•‰‚¯I");  // ©•ª‚Ì‘Ì—Í‚ª0ˆÈ‰º‚È‚ç•‰‚¯‚Æ‚µ‚ÄƒQ[ƒ€I—¹
-		}
-    }
-
-    private void updateBulletCountLabel() {
-        int realBullets = Collections.frequency(chamber, 1);
-        int emptyBullets = Collections.frequency(chamber, 0);
-        bulletCountLabel.setText("À’e: " + realBullets + " / ‹ó’e: " + emptyBullets);
-    }
-
-
-
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
-
-    @Override
-    public void mouseMoved(MouseEvent e) {}
-
-    @Override
-    public void mouseDragged(MouseEvent e) {}
-
-    public static void main(String[] args) {
-        new MyClient();
-    }
-}
->>>>>>> 0b71db5bf5f116252b22ea6bda1e5c0795b4a2be
