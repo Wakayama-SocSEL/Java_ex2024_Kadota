@@ -6,9 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
-import java.util.Random;
 
-public class MyClient extends JFrame implements MouseListener,MouseMotionListener {
+public class MyClient1 extends JFrame implements MouseListener,MouseMotionListener {
 	private JButton buttonArray[][]; //ボタン用の配列
 	private JButton passButton;
 	private int myColor, x, y;
@@ -19,15 +18,15 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 	PrintWriter out;//出力用のライター
 	private int pass_count;
 
-	public MyClient() {
+	public MyClient1() {
 		//名前の入力ダイアログを開く
 		String myName = JOptionPane.showInputDialog(null,"名前を入力してください","名前の入力",JOptionPane.QUESTION_MESSAGE);
 		if(myName.equals("")){
 			myName = "No name";//名前がないときは，"No name"とする
 		}
-		String serverIP = JOptionPane.showInputDialog(null,"サーバーの名前を入力してください","サーバーの入力",JOptionPane.QUESTION_MESSAGE);
-		if(serverIP.equals("") || serverIP == null){
-			serverIP = "localhost";
+		String IPname = JOptionPane.showInputDialog(null,"サーバーの名前を入力してください","サーバーの入力",JOptionPane.QUESTION_MESSAGE);
+		if(IPname.equals("") || IPname == null){
+			IPname = "localhost";
 		}
 		//ウィンドウを作成する
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じるときに，正しく閉じるように設定する
@@ -60,7 +59,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		buttonArray[4][3].setIcon(whiteIcon);
 		//パスボタンの作成
 		passButton = new JButton("パス");
-		passButton.setBounds(525,225,150,80);
+		passButton.setBounds(500,280,180,100);
 		passButton.addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
 		passButton.setActionCommand("PASS");
 		c.add(passButton);
@@ -71,10 +70,10 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		try {
 			//"localhost"は，自分内部への接続．localhostを接続先のIP Address（"133.42.155.201"形式）に設定すると他のPCのサーバと通信できる
 			//10000はポート番号．IP Addressで接続するPCを決めて，ポート番号でそのPC上動作するプログラムを特定する
-			socket = new Socket(serverIP, 10000);
+			socket = new Socket(IPname, 10000);
 		} catch (UnknownHostException e) {
 			System.err.println("ホストの IP アドレスが判定できません: " + e);
-		} catch (IOException e) {tg
+		} catch (IOException e) {
 			 System.err.println("エラーが発生しました: " + e);
 		}
 		
@@ -104,8 +103,14 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 				int myNumberInt = Integer.parseInt(myNumberStr);
 				if(myNumberInt % 2 == 0){//ターンとコマの色を決める
 					myTurn = 0;
+					myIcon = blackIcon;
+			        yourIcon = whiteIcon;
+					myColor = 0;
 				}
 				else{
+					myIcon=whiteIcon;
+					yourIcon=blackIcon;
+					myColor = 1;
 					myTurn = 1;
 				}
 				while(true) {
@@ -155,16 +160,15 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 							}
 						}
 						if(cmd.equals("PASS")){//パスボタンが押された場合の処理
-							pass_count += ;//パスカウントを1増やす
-							System.out.println(pass_count);
+							pass_count += 1;//パスカウントを1増やす
 							if (pass_count >1){
-								Count_board();//パスカウントが2以上の場合コマを数える。
+								check_count();//パスカウントが2以上の場合コマを数える。
 								break;
 							}
 							myTurn = 1 - myTurn;
 						}
-						if(kakuninn()){
-							Count_board();
+						if(check()){
+							check_count();
 							break;
 						}
 					}else{
@@ -273,12 +277,12 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 	public boolean judgeButton(int x, int y){
 		boolean flag = false;
 		//すべての方向におけるコマがある確認
-		for(int j=-1;j<2;j++){
-			for(int i=-1; i<2; i++){
-				if(y+j<0 || 7<y+j || x+i<0 || 7<x+i){//２次元配列内を参照している場合は続ける
+		for(int j=-1;j<1;j++){
+			for(int i=-1; i<1; i++){
+				if(y+j<0 || 8<=y+j || x+i<0 || 8<=x+i){//２次元配列内を参照している場合は続ける
 					continue;
 				}
-				if(flipButtons(x,y,i,j) >= 1){//ある場合はflag=trueにする
+				if(1<=flipButtons(x,y,i,j)){//ある場合はflag=trueにする
 					flag = true;
 				}
 			}
@@ -292,22 +296,21 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 			return 0;
 		}
 		for(int dy=j, dx=i; ; dy+=j, dx+=i){//iとjの方向への探索を進める。
-			int a=dy+y;
-			int b=dx+x;
-			System.out.println("a=" + a + " b=" + b);
-			if(a<0 || 7<a || b<0 || 7<b){//２次元配列内を参照しない場合は処理を中断
+			int ydy=dy+y;
+			int xdx=dx+x;
+			if(ydy<0 || 8<=ydy || xdx<0 || 8<=xdx){//２次元配列内を参照しない場合は処理を中断
 				return 0;
 			}
-			Icon theIcon = buttonArray[a][b].getIcon();//iとj方向のIconを確認
+			Icon theIcon = buttonArray[ydy][xdx].getIcon();//iとj方向のIconを確認
 			if(theIcon == boardIcon){//ボードアイコンの場合は処理を中断
 				return 0;
 			}
 			if(theIcon == myIcon){
 				if(flipNum >= 1){//1枚でも返せる枚数があれば情報を送る
-					for(int ddy=j, ddx=i, k=0; k<flipNum; k++, ddy+=j, ddx+=i){
+					for(int msm=j, sms=i, k=0; k<flipNum; k++, msm+=j, sms+=i){
 						//ボタンの位置情報を作る
-						int msgy = y + ddy;
-						int msgx = x + ddx;
+						int msgy = y + msm;
+						int msgx = x + sms;
 						int theArrayIndex = msgy*8 + msgx;
 						//サーバに情報を送る
 						String msg = "FLIP"+" "+theArrayIndex+" "+myColor;
@@ -323,7 +326,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		}
 	}
 	//ボードアイコンがあるかを確認する関数
-	public boolean kakuninn(){//ボードアイコンがあるかを確認する
+	public boolean check(){//ボードアイコンがあるかを確認する
 		boolean flag = true;
 		Icon theIcon = null;
 		//すべてのマス目を確認していく
@@ -339,7 +342,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		return flag;
 	}
 	//最後にコマを数える関数
-	public void Count_board(){
+	public void check_count(){
 		//それぞれを初期化
 		int white = 0;
 		int black = 0;
@@ -358,11 +361,14 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 			}
 		}
 		//勝敗の条件理由を行う
-		if (yourLife < 0){
-			System.out.println("You win");
-		}else{
-			System.out.println("You lose")
+		if (white < black){
+			System.out.println("黒のコマの勝ちです");
+		}
+		else if (white > black){
+			System.out.println("白のコマの勝ちです");
+		}
+		else{
+			System.out.println("引き分けです");
 		}
 	}
-		
-	}
+}

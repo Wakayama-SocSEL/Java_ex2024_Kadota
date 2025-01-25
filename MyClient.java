@@ -1,277 +1,786 @@
 import java.net.*;
 import java.io.*;
 import javax.swing.*;
-import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import javax.sound.sampled.*;
+import java.io.File;//音楽再生時に必要
+import javax.sound.sampled.AudioFormat;//音楽再生時に必要
+import javax.sound.sampled.AudioSystem;//音楽再生時に必要
+import javax.sound.sampled.Clip;//音楽再生時に必要
+import javax.sound.sampled.DataLine;//音楽再生時に必要
 
-public class MyClient extends JFrame implements MouseListener,MouseMotionListener {
-	private JButton buttonArray[][]; //ボタン用の配列
-	private JButton passButton;
-	private int myColor, x, y;
-	private Container c;
-	private ImageIcon myIcon, yourIcon;
-	private int myTurn;
-	private ImageIcon blackIcon, whiteIcon, boardIcon;
-	PrintWriter out;//出力用のライター
-	private int pass_count;
+class BackgroundPanel extends JPanel {
+    private Image backgroundImage;
 
-	public MyClient() {
-		//名前の入力ダイアログを開く
-		String myName = JOptionPane.showInputDialog(null,"名前を入力してください","名前の入力",JOptionPane.QUESTION_MESSAGE);
-		if(myName.equals("")){
-			myName = "No name";//名前がないときは，"No name"とする
+    public BackgroundPanel(String imagePath) {
+        try {
+            backgroundImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
+        } catch (Exception e) {
+            System.err.println("背景画像の読み込みに失敗: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+}
+
+public class MyClient extends JFrame implements MouseListener, MouseMotionListener {
+    private JButton shotButton, myselfPistolButton, watchButton, doublePowerButton, startButton,replayButton,exitButton;
+    private JLabel playerHealthLabel, opponentHealthLabel, messageLabel, bulletCountLabel;
+    private int playerHealth = 3;
+    private int opponentHealth = 3;
+    private ArrayList<Integer> chamber;
+	private ArrayList<Integer> tmp;
+    private int myTurn; // 0: 先攻, 1: 後攻
+    private int watchCount = 2;
+    private int powerMultiplier = 1; // 火力の倍率
+	private int turnCount = 0; // ターン数を初期化
+    private PrintWriter out;
+    private String serverIP;
+    private String myName;
+    private Socket socket;	
+    private String selectedCharacter; // 選択されたキャラクターを保持する
+	private JLabel playerIcon;   // プレイヤーのアイコンを表示する
+	private JLabel opponentIcon; // 相手のアイコンを表示する
+
+
+	 // 弾の状態を保持する変数
+    private boolean isLiveRound = true;  // 実弾か空弾か（true: 実弾、false: 空弾）
+
+    public MyClient() {
+		// 名前の入力ダイアログを開く
+		myName = JOptionPane.showInputDialog(null, "名前を入力してください", "名前の入力", JOptionPane.QUESTION_MESSAGE);
+		if (myName == null || myName.equals("")) {
+			myName = "No name";
 		}
-		String serverIP = JOptionPane.showInputDialog(null,"サーバーの名前を入力してください","サーバーの入力",JOptionPane.QUESTION_MESSAGE);
-		if(serverIP.equals("") || serverIP == null){
+
+		serverIP = JOptionPane.showInputDialog(null, "サーバーの名前を入力してください", "サーバーの入力", JOptionPane.QUESTION_MESSAGE);
+		if (serverIP == null || serverIP.equals("")) {
 			serverIP = "localhost";
 		}
-		//ウィンドウを作成する
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じるときに，正しく閉じるように設定する
-		setTitle("MyClient");//ウィンドウのタイトルを設定する
-		setSize(800,600);//ウィンドウのサイズを設定する
-		c = getContentPane();//フレームのペインを取得する
 
-		//アイコンの設定
-		twice = new ImageIcon("twice.jpg");
-		watch = new ImageIcon("Black.jpg");
-		joker = new ImageIcon("GreenFrame.jpg");
-		heal = new ImageIcon("heal.jpg");
-		watch = new ImageIcon("Black.jpg");
+		// Setup JFrame with custom background
+		setContentPane(new BackgroundPanel("/tabletop.png"));
+		setLayout(null);
 
-		c.setLayout(null);//自動レイアウトの設定を行わない
-		public static void main(String[] args) {
-			Random rand = new Random();
-			int all_bullet = 6;
-			int Gun_bullet = rand.nextInt(all_bullet) + 1;
-			List<String>chamber = new ArrayList<String>();
+		// Player and opponent icons
+        JLabel playerIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
+        playerIcon.setBounds(50, 50, 100, 100);
+        add(playerIcon);
+
+        JLabel opponentIcon = new JLabel(new ImageIcon(getClass().getResource("images.png")));
+        opponentIcon.setBounds(650, 50, 100, 100);
+        add(opponentIcon);
+
+
 		
-		for(int i = 0; i < Gun_bullet; i++){
-			chamber.add("1");
+
+        // Start button
+        startButton = new JButton("ゲーム開始");
+        startButton.setBounds(300, 250, 200, 50);
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        });
+        add(startButton);
+
+        // Bullet count label (for displaying bullet counts)
+        bulletCountLabel = new JLabel();
+        bulletCountLabel.setBounds(250, 200, 300, 30);
+        bulletCountLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // 日本語対応フォント設定
+        bulletCountLabel.setForeground(Color.YELLOW);
+        add(bulletCountLabel);
+
+        // Health labels
+        playerHealthLabel = new JLabel("Player Health: " + playerHealth);
+        playerHealthLabel.setBounds(50, 160, 200, 30);
+        playerHealthLabel.setForeground(Color.WHITE);
+        add(playerHealthLabel);
+
+        opponentHealthLabel = new JLabel("Opponent Health: " + opponentHealth);
+        opponentHealthLabel.setBounds(650, 160, 200, 30);
+        opponentHealthLabel.setForeground(Color.WHITE);
+        add(opponentHealthLabel);
+
+        // Message label
+        messageLabel = new JLabel("ゲーム開始", SwingConstants.CENTER);
+        messageLabel.setBounds(200, 500, 400, 30);
+        messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // 日本語対応フォント設定
+        messageLabel.setForeground(Color.YELLOW);
+        add(messageLabel);
+
+        // Buttons placed below the start button
+       //ボタン作成
+		watchButton = createButton("eye.jpeg", 50, 350, "次の弾の確認");
+		watchButton.setEnabled(false);
+		watchButton.addActionListener(e -> {
+			watchaction(); // 次の弾の確認処理
+			watchButton.setEnabled(false);
+			doublePowerButton.setEnabled(false); // ダブルボタンを無効化
+		});
+		add(watchButton);
+
+
+        myselfPistolButton = createButton("myself_pistol.png", 250, 350, "自分に打つ");
+		myselfPistolButton.setEnabled(false);
+        add(myselfPistolButton);
+
+        shotButton = createButton("pistol.jpg", 450, 350, "相手に打つ");
+		shotButton.setEnabled(false);
+        add(shotButton);
+
+        doublePowerButton = createButton("double_power.png", 650, 350, "火力倍増");
+		doublePowerButton.setEnabled(false);
+        add(doublePowerButton);
+		
+		
+
+		// doublePowerButton のアクションリスナー
+		doublePowerButton.addActionListener(e -> {
+			doublePowerButton.setEnabled(false); // 自分自身を無効化
+			watchButton.setEnabled(false); // ウォッチボタンを無効化
+			powerUp(); // 火力倍増の処理
+		});
+		
+		
+		replayButton = new JButton("再プレイ");
+		replayButton.setBounds(300, 450, 100, 50);
+		replayButton.setVisible(false); // 初期状態では非表示
+		replayButton.addActionListener(e -> resetGame());
+		add(replayButton);
+
+		exitButton = new JButton("終了");
+		exitButton.setBounds(450, 450, 100, 50);
+		exitButton.setVisible(false); // 初期状態では非表示
+		exitButton.addActionListener(e -> System.exit(0)); // アプリケーションを終了
+		add(exitButton);
+
+        // ウィンドウを作成する
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 600);
+        setTitle("メルヘンロシアンルーレット");
+        setVisible(true);
+
+        Socket socket = null;
+		try {
+			socket = new Socket(serverIP, 10000);
+			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "サーバーへの接続に失敗しました: " + e.getMessage());
+			System.exit(1);
 		}
-		for(int i = 0; i < all_bullet - Gun_bullet; i++){
-			chamber.add("0");
+		
+		 // Initialize chamber
+        ratio();
+        MesgRecvThread mrt = new MesgRecvThread(socket, myName); //受信用のスレッドを作成する
+        mrt.start(); //スレッドを動かす（Runが動く）
+    }
+	
+	// コンストラクタ外にメソッドを追加
+		private void shootMyself() {
+			// 自分を撃つ処理をシミュレート（trueを引数としてhandleShotメソッドを呼び出す）
+			handleShot();
 		}
-		Collections.shuffle(chamber);
-		int cnt = 0;
-		for(String str: chamber){
-			if("1".equals(str)){
-				cnt++;			
+
+		private void shootOpponent() {
+			// 相手を撃つ処理をシミュレート（falseを引数としてhandleShotメソッドを呼び出す）
+			powerShot();
+		}
+
+		private void powerUp() {
+			// ダメージを2倍にする処理を呼び出す
+			doublepower();
+		}
+		
+		private void playSound(String soundFileName) {
+			
+			try {
+				// ファイルのパスを指定してAudioInputStreamを取得
+				File soundFile = new File(getClass().getResource("/" + soundFileName).toURI());
+				AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+				Clip clip = AudioSystem.getClip();
+				clip.open(audioStream);
+				clip.start(); // 音を再生
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
-		System.out.println("実弾の個数: " + cnt);
 		
+		private JButton createButton(String iconPath, int x, int y, String labelText) {
+			JButton button = new JButton(new ImageIcon(getClass().getResource(iconPath)));
+			button.setBounds(x, y, 150, 80); // ボタンのサイズを調整
+			button.setFocusPainted(false);
+			button.setBackground(new Color(60, 63, 65));
+			button.setOpaque(false);
+			button.addMouseListener(this);
+			button.setActionCommand(labelText);
+
+			// ボタンの下に文字を追加
+			JLabel label = new JLabel(labelText, SwingConstants.CENTER);
+			label.setBounds(x, y + 80, 150, 30);
+			label.setForeground(Color.WHITE);
+			label.setFont(new Font("MS Gothic", Font.BOLD, 12)); // 日本語対応フォント
+			add(label);
+
+			// ボタンがクリックされたときの処理
+			/*button.addActionListener(e -> {
+			if (!"次の弾の確認".equals(labelText)) { // "次の弾の確認" 以外のボタンのみ音を再生
+				if (isLiveRound) {
+					playSound("burn.wav"); // 実弾
+				} else {
+					playSound("vacant.wav"); // 空弾
+				}
+				isLiveRound = !isLiveRound; // 弾の状態を切り替える
+			}
+		});*/
+
+
+			return button;
 		}
 		
 		
-		//パスボタンの作成
-		passButton = new JButton("パス");
-		passButton.setBounds(525,225,150,80);
-		passButton.addMouseListener(this);//ボタンをマウスでさわったときに反応するようにする
-		passButton.setActionCommand("PASS");
-		c.add(passButton);
-		//ボタンに配列の情報を付加する（ネットワークを介してオブジェクトを識別するため）
-			
-		//サーバに接続する
-		Socket socket = null;
-		try {
-			//"localhost"は，自分内部への接続．localhostを接続先のIP Address（"133.42.155.201"形式）に設定すると他のPCのサーバと通信できる
-			//10000はポート番号．IP Addressで接続するPCを決めて，ポート番号でそのPC上動作するプログラムを特定する
-			socket = new Socket(serverIP, 10000);
-		} catch (UnknownHostException e) {
-			System.err.println("ホストの IP アドレスが判定できません: " + e);
-		} catch (IOException e) {
-			 System.err.println("エラーが発生しました: " + e);
-		}
-		
-		MesgRecvThread mrt = new MesgRecvThread(socket, myName);//受信用のスレッドを作成する
-		mrt.start();//スレッドを動かす（Runが動く）
-	}
-		
-	//メッセージ受信のためのスレッド
-	public class MesgRecvThread extends Thread {
-		
-		Socket socket;
-		String myName;
-		
-		public MesgRecvThread(Socket s, String n){
-			socket = s;
-			myName = n;
-		}
-		
-		//通信状況を監視し，受信データによって動作する
+		// メッセージ受信のためのスレッド
+    public class MesgRecvThread extends Thread {
+        Socket socket;
+        String myName;
+
+        public MesgRecvThread(Socket s, String n) {
+            socket = s;
+            myName = n;
+        }
+
 		public void run() {
-			try{
+			try {
+				boolean isDoublePowerActive = false;  // 火力倍増が有効かどうかを管理するフラグ
 				InputStreamReader sisr = new InputStreamReader(socket.getInputStream());
 				BufferedReader br = new BufferedReader(sisr);
 				out = new PrintWriter(socket.getOutputStream(), true);
 				out.println(myName);//接続の最初に名前を送る
 				String myNumberStr = br.readLine();
 				int myNumberInt = Integer.parseInt(myNumberStr);
-				if(myNumberInt % 2 == 0){//ターンとを決める
-					myTurn = 0;
+				myTurn = myNumberInt % 2 == 0 ? 0 : 1;  // Determine if the player is first or second
+				// 初期ターンメッセージを表示
+				if (myTurn == 0) {
+					messageLabel.setText("あなたは先攻です！");
+				} else {
+					messageLabel.setText("あなたは後攻です！");
 				}
-				else{
-					myTurn = 1;
-				}
-				while(true) {
-					String inputLine = br.readLine();//データを一行分だけ読み込んでみる
-					if (inputLine != null) {//読み込んだときにデータが読み込まれたかどうかをチェックする
-						System.out.println(inputLine);//デバッグ（動作確認用）にコンソールに出力する
-						String[] inputTokens = inputLine.split(" ");	//入力データを解析するために、スペースで切り分ける
-						String cmd = inputTokens[0];//コマンドの取り出し．１つ目の要素を取り出す
-						if (cmd.equals("watch")) {
-							if (watchCount > 0) {
-								int nextGun = chamber.get(0); // 次の弾を見る
-								if (nextGun == 1) {
-									System.out.println("次の弾は実弾です！");
-								} else {
-									System.out.println("次の弾は空弾です！");
-								}
-								watchCount--; // Watchの使用回数を減らす
-								System.out.println("残りのWatch回数: " + watchCount);
-								if(watchCount == 0){
-								watchButton.setEnabled(false);
-								}
+
+				while (true) {
+					String inputLine = br.readLine();
+					if (inputLine != null) {
+						String[] inputTokens = inputLine.split(" ");
+						String cmd = inputTokens[0];	
+						if (cmd.equals("Chamber")) {
+							chamber = new ArrayList<>();
+							for (int i = 0; i < inputTokens[1].length(); i++) {
+								char c = inputTokens[1].charAt(i);
+								chamber.add(Character.getNumericValue(c));
 							}
-						}					
-						if (cmd.equals("PASS")) { // cmdが"PASS"の場合の処理
-							// 弾丸を1発取り出す
-							int bullet = chamber.remove(0); // リストから最初の弾を取り出す
-							if (bullet == 1) {
-								// 実弾だった場合
-								playerHealth -= 1; // プレイヤーの体力を1減らす
-								System.out.println("実弾！体力が減少しました。現在の体力: " + playerHealth);
-								myTurn = 1 - myTurn;; // 自分のターンを終了
-							} else {
-								// 空弾だった場合
-								System.out.println("セーフ！もう一度引いてください。");
-								// myTurnを維持して再度試行
-								myTurn = 0 - myTurn;
+							System.out.println(chamber);
+						}
+
+
+						if (cmd.equals("Watch")) {
+							playSound("look.wav"); // watchButtonが押された時にlook.wavを再生
+							// Handle "Watch" command to check the next bullet
+							if (watchCount >= 0) {
+								
+								int nextBullet = chamber.get(0);
+								
+								if (myTurn == 0) {
+									if(nextBullet == 1){
+										messageLabel.setText("次の弾は実弾です！");
+									}else{
+										messageLabel.setText("次の弾は空弾です！");
+									}
+									watchCount--;
+								} else {
+									
+									messageLabel.setText("相手は次の弾を確認しました");
+									
+								}
+								
+								if (watchCount == 0) {
+									watchButton.setEnabled(false);
+								}
+								
 							}
 						}
-						if (cmd.equals("Shot")) { // cmdが"shot"の場合の処理
-								// 弾丸を1発取り出す
-								int bullet = chamber.remove(0); // リストから最初の弾を取り出す
-								if (bullet == 1) {
-									// 実弾だった場合
-									opponentHealth -= 1; // プレイヤーの体力を1減らす
-									System.out.println("実弾！相手の体力が減少しました。相手の体力: " + opponentHealth);
-									myTurn = 1 - myTurn; // 自分のターンを終了
-								} else {
-									// 空弾だった場合
-									opponentHealth -= 0;
-									System.out.println("残念！ 相手の体力:"　+ opponentHealth);
-									// 自分のターンを終了
+						if (cmd.equals("Myself")) {
+							int charge = chamber.remove(0); // 弾を1つ取り出す
+							int decline = charge == 1 ? 1 * powerMultiplier : 0;	
+							
+												
+							if(charge == 1){
+								playSound("burn.wav");  // 実弾の音
+								
+								if(myTurn == 0){
+									
+									playerHealth -= decline;
+									messageLabel.setText("自分に実弾命中！残り体力: " + playerHealth);
+									myTurn = 1 - myTurn;
+								}else{
+									opponentHealth -= decline;
+									messageLabel.setText("相手に実弾命中！残り体力: " + opponentHealth);
 									myTurn = 1 - myTurn;
 								}
-						}
-						if(cmd.equals("PASS")){//パスボタンが押された場合の処理
-							pass_count += 1;//パスカウントを1増やす
-							System.out.println(pass_count);
-							if (pass_count >1){
-								Count_board();//パスカウントが2以上の場合コマを数える。
-								break;
+							}else{
+								playSound("vacant.wav");  // 空弾の音
+								if(myTurn == 0){
+									messageLabel.setText("空弾でした！残り体力: " + playerHealth);
+									
+								}else{
+									messageLabel.setText("相手自身に打ちましたが空弾でした！残り体力: " + opponentHealth);
+									
+								}
+								 
 							}
-							myTurn = 1 - myTurn;
+							if (opponentHealth <= 0) {
+								messageLabel.setText("あなたの勝ち！");
+								endGame(); // 終了処理を呼び出す
+							} else if (playerHealth <= 0) {
+								messageLabel.setText("あなたの負け！");
+								endGame(); // 終了処理を呼び出す
+							}
+							updateHealthLabels();
+							
+							if (isDoublePowerActive) {
+								powerMultiplier = 1;  // 火力を元に戻す
+								isDoublePowerActive = false;  // フラグをリセット
+							}
+							// ボタンの状態を更新
+							updateButtonState(); 
+							
 						}
-						if(kakuninn()){
-							Count_board();
-							break;
+							
+						
+						if (cmd.equals("Shot")) {
+							int charge = chamber.remove(0); // 弾を1つ取り出す
+							int decline = charge == 1 ? 1 * powerMultiplier : 0;	
+							
+												
+							if(charge == 1){
+								playSound("burn.wav");  // 実弾の音
+								
+								if(myTurn == 0){
+									opponentHealth -= decline;
+									messageLabel.setText("相手に発砲し、実弾命中！相手の残り体力: " + opponentHealth);
+									myTurn = 1 - myTurn;
+								}else{
+									playerHealth -= decline;
+									messageLabel.setText("相手が発砲し実弾命中！残り体力: " + playerHealth);
+									myTurn = 1 - myTurn;
+								}
+							}else{
+								playSound("vacant.wav");  // 空弾の音
+								
+								if(myTurn == 0){
+									messageLabel.setText("相手に打ちましたが空弾でした！残り体力: " + opponentHealth);
+									myTurn = 1 - myTurn;
+								}else{
+									messageLabel.setText("相手が発砲、しかし空弾でした！残り体力: " + playerHealth);
+									myTurn = 1 - myTurn;
+								}
+								 
+							}
+							if (opponentHealth <= 0) {
+								messageLabel.setText("あなたの勝ち！");
+								endGame(); // 終了処理を呼び出す
+							} else if (playerHealth <= 0) {
+								messageLabel.setText("あなたの負け！");
+								endGame(); // 終了処理を呼び出す
+							}
+							updateHealthLabels();
+							
+							if (isDoublePowerActive) {
+								powerMultiplier = 1;  // 火力を元に戻す
+								isDoublePowerActive = false;  // フラグをリセット
+							}
+							// ボタンの状態を更新
+							updateButtonState(); 
+							
+							
 						}
-					}else{
-						break;
+						if (cmd.equals("Double")) {
+											
+								
+							// 火力倍増を有効にする
+							powerMultiplier = 2;  // 火力倍増
+							isDoublePowerActive = true;  // フラグを設定して、再度使用できないようにする
+							messageLabel.setForeground(Color.YELLOW);  // 文字色を黄色に設定
+							messageLabel.setText("火力倍増！次のターンは倍のダメージを与えます！");
+							doublePowerButton.setEnabled(false);
+							
+						
+						}
+						// 自分のターンになった場合
+						if (cmd.equals("TurnSwitch")) {
+							turnCount++; // ターン数を1増加
+							if(myTurn == 0){
+							
+								SwingUtilities.invokeLater(() -> {
+									messageLabel.setText("あなたのターンです。");
+									updateButtonState(); // ボタンを有効化
+								});
+						   }else{
+							   SwingUtilities.invokeLater(() -> {
+								messageLabel.setText("相手のターンです");
+								updateButtonState(); // ボタンを無効化
+							});
+						   }
+						}
+						
+
 					}
-				
 				}
-				
-				socket.close();
 			} catch (IOException e) {
-				System.err.println("エラーが発生しました: " + e);
+				e.printStackTrace();
 			}
+		}
+		}
+
+
+		
+		private void updateButtonState() {
+			// 自分のターンの場合（myTurn == 0）はボタンを有効にし、後攻の場合（myTurn == 1）は無効にする
+			boolean isMyTurn = (myTurn == 0); // 自分のターンのみ有効
+
+			// 各ボタンの有効・無効を設定
+			watchButton.setEnabled(isMyTurn);
+			myselfPistolButton.setEnabled(isMyTurn);
+			shotButton.setEnabled(isMyTurn);
+			doublePowerButton.setEnabled(isMyTurn);
+		}
+
+		
+
+
+
+		private void ratio() {
+			
+			tmp = new ArrayList<>();
+			Random rand = new Random();
+
+			// 実弾、空弾を最低でも1つ配置
+			tmp.add(1); // 実弾1つ
+			tmp.add(0); // 空弾1つ
+
+			// 残り4つをランダムに実弾または空弾に設定
+			int remainingBulletCount = 4;
+			for (int i = 0; i < remainingBulletCount; i++) {
+				tmp.add(rand.nextInt(2)); // 0または1（空弾または実弾）
+			}
+
+			Collections.shuffle(tmp); // 弾の順番をランダムに並べ替え
+
+			String message = "Chamber ";
+			for (int j = 0; j < tmp.size(); j++) {
+				message += Integer.toString(tmp.get(j));
+			}
+
+			out.println(message);
+		}
+
+
+
+		private void startGame() {
+
+			// デバッグ出力
+			System.out.println("chamber の内容: " + chamber);
+
+			int realBullets = Collections.frequency(chamber, 1);
+			int emptyBullets = Collections.frequency(chamber, 0);
+
+			bulletCountLabel.setText("実弾: " + realBullets + " / 空弾: " + emptyBullets);
+
+			startButton.setVisible(false);
+			messageLabel.setText("ゲームが開始されました！");
+			updateButtonState();
+		}
+
+
+   @Override
+	public void mouseClicked(MouseEvent e) {
+		JButton clickedButton = (JButton) e.getComponent();
+		String action = clickedButton.getActionCommand();  // ActionCommandを取得
+
+		if (myTurn == 0) { // 自分のターンの場合
+			
+			switch (action) {
+				case "次の弾の確認":
+					watchaction(); // 次の弾の確認処理を呼び出す
+					break;
+				case "自分に打つ":
+					shootMyself(); // 自分に打つ処理
+					break;
+				case "相手に打つ":
+					shootOpponent(); // 相手に打つ処理
+					break;
+				case "火力倍増":
+					powerUp(); // 火力倍増の処理
+					break;
+				default:
+					System.out.println("Unknown action: " + action);
+					break;
+			}
+		} else {
+			messageLabel.setText("相手のターンです");
 		}
 	}
 
-	public static void main(String[] args) {
-		MyClient net = new MyClient();
-		net.setVisible(true);
-	}
-  	
-	public void mouseClicked(MouseEvent e) {//ボタンをクリックしたときの処理
-		if (myTurn == 0){
-			System.out.println("クリック");
-			JButton theButton = (JButton)e.getComponent();//クリックしたオブジェクトを得る．型が違うのでキャストする
-			String theArrayIndex = theButton.getActionCommand();//ボタンの配列の番号を取り出す
-			Icon theIcon = theButton.getIcon();//theIconには，現在のボタンに設定されたアイコンが入る
-			if (theArrayIndex.equals("PASS")){
-				String msg = "PASS";
 
-				//サーバに情報を送る
-				out.println(msg);//送信データをバッファに書き出す
-				out.flush();//送信データをフラッシュ（ネットワーク上にはき出す）する
+
+
+		private void watchaction() {
+			String message = "Watch ";
+			 out.println(message);
+			/*if (watchCount > 0) {
+				playSound("look.wav"); // watchButtonが押された時にlook.wavを再生
+				int nextBullet = chamber.get(0);
+				if (nextBullet == 1) {
+					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // 日本語対応フォント設定
+					messageLabel.setText("次の弾は実弾です！");
+				} else {
+					messageLabel.setFont(new Font("MS Gothic", Font.BOLD, 16)); // 日本語対応フォント設定
+					messageLabel.setText("次の弾は空弾です！");
+				}
+				watchCount--;
+				if (watchCount == 0) {
+					watchButton.setEnabled(false);
+				}
+			}*/
+		}
+
+	   //private void handleShot(boolean isSelf) {
+		private void handleShot(){
+			String message = "Myself ";
+			out.println(message);
+			 
+			 
+		/*if (chamber.isEmpty()) {
+			messageLabel.setText("弾がなくなった！再補充中...");
+			ratio(); // 新しい弾を補充
+			return;
+		}
+		
+		
+		int bullet = chamber.remove(0); // 弾を1つ取り出す
+		int damage = bullet == 1 ? 1 * powerMultiplier : 0;
+		for(int i = 0; i<chamber.size();i++){
+			mine += Integer.toString(chamber.get(i));
+		}
+		if (isSelf) { // 自分が攻撃手（自身に撃つ）
+			
+			if (bullet == 1) {
+				playerHealth -= damage;
+				
+				// 自分に実弾命中
+				playSound("burn.wav");  // 実弾の音
+				SwingUtilities.invokeLater(() -> {
+					messageLabel.setText("自分に実弾命中！残り体力: " + playerHealth);
+				});
+			} else {
+				playSound("vacant.wav");  // 空弾の音
+				SwingUtilities.invokeLater(() -> {
+					messageLabel.setText("空弾！自分は無傷です。残り体力: " + playerHealth);
+				});
+			}
+			out.println(mine);
+		} else { // 相手が攻撃手（相手に撃つ）
+			if (bullet == 1) { // 実弾の場合
+				opponentHealth -= damage;
+				playSound("burn.wav");  // 実弾の音
+				SwingUtilities.invokeLater(() -> {
+					messageLabel.setText("相手に実弾命中！相手の体力: " + opponentHealth);
+				});
+			} else { // 空弾の場合
+				playSound("vacant.wav");  // 空弾の音
+				SwingUtilities.invokeLater(() -> {
+					messageLabel.setText("空弾発射！相手の体力は減少しません。");
+				});
+			}
+			out.println(mine);
+		}*/
+
+
+		// 体力が0になった場合のゲーム終了処理
+		/*if (playerHealth <= 0) {
+			gameOver("あなたの負け！");
+		} else if (opponentHealth <= 0) {
+			gameOver("あなたの勝ち！");
+		}*/
+
+		// 体力ラベルを更新
+		//updateHealthLabels();
+
+		// 相手に撃った場合、ターンを終了する処理
+		/*if (!isSelf) { // 相手に撃った場合
+			myTurn = 1 - myTurn; // ターンを切り替える
+			if (bullet == 1) { // 実弾の場合
+				messageLabel.setText("実弾発射！相手のターンです。");
+			} else { // 空弾の場合
+				messageLabel.setText("空弾発射！相手のターンです。");
+			}
+			out.println("TurnSwitch"); // サーバーにターン切り替えを通知
+			out.flush();
+		} else { // 自分のターン（myself）
+			if (bullet == 1) {
+				messageLabel.setText("実弾発射！ターンが終了します。");
+				myTurn = 1 - myTurn;
+				out.println("TurnSwitch"); // サーバーにターン切り替えを通知
+				out.flush();
+			} else {
+				messageLabel.setText("空弾発射！自分のターンが続きます。");
+				// 空弾だった場合、ターンは続行
+				return;
+			}
+			out.println("TurnSwitch"); // サーバーにターン切り替えを通知
+			out.flush();
+		}*/
+		
+		// 火力倍増を元に戻す処理
+		/*if (isDoublePowerActive) {
+			powerMultiplier = 1;  // 火力を元に戻す
+			isDoublePowerActive = false;  // フラグをリセット
+		}
+		// ボタンの状態を更新
+		updateButtonState(); */
+		
+	}
+	
+		private void powerShot(){
+			 String message = "Shot ";
+			 out.println(message);
+		}
+
+		
+		
+		
+
+		private void updateHealthLabels() {
+			playerHealthLabel.setText("Player Health: " + playerHealth);
+			opponentHealthLabel.setText("Opponent Health: " + opponentHealth);
+		}
+
+
+
+    
+
+		//private boolean isDoublePowerActive = false;  // 火力倍増が有効かどうかを管理するフラグ
+
+		private void doublepower() {
+			String message = "Double ";
+			 out.println(message);
+			
+			/*if (isDoublePowerActive) {
+				// 既に火力倍増が有効な場合
+				messageLabel.setText("火力倍増は既に使用済みです！");
+				return;  // 何もしない
 			}
 			
+			// 火力倍増を有効にする
+			powerMultiplier = 2;  // 火力倍増
+			isDoublePowerActive = true;  // フラグを設定して、再度使用できないようにする
+			messageLabel.setForeground(Color.YELLOW);  // 文字色を黄色に設定
+			messageLabel.setText("火力倍増！次のターンは倍のダメージを与えます！");
+
+			// ボタンを無効にする
+			doublePowerButton.setEnabled(false);
+			
+			// 火力倍増が適用されたターンが終わった後に元に戻す
+			
+			// powerMultiplier = 1;  // 火力を元に戻す*/
+		}
+		
+
+
+
+		
+
+		
+		
+		private void endGame() {
+			// メインボタンを無効化
+			watchButton.setEnabled(false);
+			myselfPistolButton.setEnabled(false);
+			shotButton.setEnabled(false);
+			doublePowerButton.setEnabled(false);
+
+			// 再プレイと終了ボタンを表示
+			replayButton.setVisible(true);
+			exitButton.setVisible(true);
+		}
+		
+		private void resetGame() {
+			// ゲームの状態を初期化
+			playerHealth = 10; // 初期体力
+			opponentHealth = 10; // 初期体力
+			powerMultiplier = 1; // 火力倍率の初期化
+			watchCount = 2;
+			turnCount = 0; // ターン数をリセット
+			isLiveRound = true; // 弾の状態初期化
+			chamber.clear(); // チェンバーをリセット
+			ratio(); // チェンバーの初期化
+
+			// ラベルをリセット
+			messageLabel.setText("ゲームがリセットされました。新しいゲームを開始します！");
+			updateHealthLabels();
+
+			// ボタンの状態をリセット
+			replayButton.setVisible(false); // 再プレイボタンを非表示
+			exitButton.setVisible(false);   // 終了ボタンを非表示
+			updateButtonState();            // メインボタンの有効化
 		}
 
-	}
-	
-	public void mouseEntered(MouseEvent e) {//マウスがオブジェクトに入ったときの処理
-		// System.out.println("マウスが入った");
-	}
-	
-	public void mouseExited(MouseEvent e) {//マウスがオブジェクトから出たときの処理
-		// System.out.println("マウス脱出");
-	}
-	
-	public void mousePressed(MouseEvent e) {//マウスでオブジェクトを押したときの処理（クリックとの違いに注意）
-		// System.out.println("マウスを押した");
-	}
-	
-	public void mouseReleased(MouseEvent e) {//マウスで押していたオブジェクトを離したときの処理
-		// System.out.println("マウスを放した");
-	}
-	
-	public void mouseDragged(MouseEvent e) {//マウスでオブジェクトとをドラッグしているときの処理
-		/*
-		System.out.println("マウスをドラッグ");
-		JButton theButton = (JButton)e.getComponent();//型が違うのでキャストする
-		String theArrayIndex = theButton.getActionCommand();//ボタンの配列の番号を取り出す
-		if (!theArrayIndex.equalsIgnoreCase("0")){
-			Point theMLoc = e.getPoint();//発生元コンポーネントを基準とする相対座標
-			System.out.println(theMLoc);//デバッグ（確認用）に，取得したマウスの位置をコンソールに出力する
-			Point theBtnLocation = theButton.getLocation();//クリックしたボタンを座標を取得する
-			theBtnLocation.x += theMLoc.x-15;//ボタンの真ん中当たりにマウスカーソルがくるように補正する
-			theBtnLocation.y += theMLoc.y-15;//ボタンの真ん中当たりにマウスカーソルがくるように補正する
-			theButton.setLocation(theBtnLocation);//マウスの位置にあわせてオブジェクトを移動する
-	 
-			//送信情報を作成する（受信時には，この送った順番にデータを取り出す．スペースがデータの区切りとなる）
-			String msg = "MOVE"+" "+theArrayIndex+" "+theBtnLocation.x+" "+theBtnLocation.y;
 
-			//サーバに情報を送る
-			out.println(msg);//送信データをバッファに書き出す
-			out.flush();//送信データをフラッシュ（ネットワーク上にはき出す）する
-		}
-		repaint();//オブジェクトの再描画を行う
-		*/
-	}
+		
+		
 
-	public void mouseMoved(MouseEvent e) {//マウスがオブジェクト上で移動したときの処理
-		/*
-		System.out.println("マウス移動");
-		int theMLocX = e.getX();//マウスのx座標を得る
-		int theMLocY = e.getY();//マウスのy座標を得る
-		System.out.println(theMLocX+","+theMLocY);//コンソールに出力する
-		*/
-	}
-	
-		//勝敗の条件理由を行う
-		if ( playerHealth < 0){
-			System.out.println("Playerの負けです");
+
+		private void updateBulletCountLabel() {
+			int realBullets = Collections.frequency(chamber, 1);
+			int emptyBullets = Collections.frequency(chamber, 0);
+			bulletCountLabel.setText("実弾: " + realBullets + " / 空弾: " + emptyBullets);
 		}
-		else{
-			System.out.println("Playerの勝ちです");
-		}
-	}
+	   
+
+
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void mouseMoved(MouseEvent e) {}
+
+    @Override
+    public void mouseDragged(MouseEvent e) {}
+
+    public static void main(String[] args) {
+        new MyClient();
+    }
 }
+
+
+	   
